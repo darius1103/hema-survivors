@@ -1,23 +1,30 @@
 import { Observable } from "rxjs";
 import { Color } from "../utils/color";
 import { ControlStatus } from "../utils/control-status";
-import { Footprint } from "../utils/footPrint";
 import { XYLocation } from "./xylocation";
 
-export class Player {
+export class Enemy {
     absolutePosition: XYLocation = new XYLocation(0, 0);
-    controlStatus: ControlStatus = null as any;
+    controlStatus: ControlStatus = {UP: false, DOWN: false, LEFT: false, RIGHT: false};
     oldAbsolutePosition: XYLocation = new XYLocation(0, 0);
     width: number = 10;
     height: number = 20;
-    speed: number = 3;
+    speed: number = 1;
+    lastKnownPlayerLocation: XYLocation =  null as any;
 
-    constructor(innitialLocation: XYLocation) {;
+    constructor(innitialLocation: XYLocation, stream: Observable<XYLocation>) {
+        stream.subscribe((location) => {
+            this.lastKnownPlayerLocation = location;
+            this.determineControlStatus();
+        });
         this.absolutePosition = innitialLocation;
     }
 
-    public control(stream: Observable<ControlStatus>): void {
-        stream.subscribe((status) => this.controlStatus = status);
+    private determineControlStatus(): void {
+        this.controlStatus.UP = this.absolutePosition.y > this.lastKnownPlayerLocation.y;
+        this.controlStatus.DOWN = this.absolutePosition.y < this.lastKnownPlayerLocation.y;
+        this.controlStatus.LEFT = this.absolutePosition.x > this.lastKnownPlayerLocation.x;
+        this.controlStatus.RIGHT = this.absolutePosition.x < this.lastKnownPlayerLocation.x;
     }
 
     public move(topLeftCorner: XYLocation, bottomRightCorner: XYLocation): XYLocation {
@@ -72,7 +79,7 @@ export class Player {
             this.width,
             this.height);
         this.oldAbsolutePosition = this.absolutePosition;
-        ctx.fillStyle = Color.DUCK;
+        ctx.fillStyle = Color.HEART;
         ctx.fill();
     }
 }
