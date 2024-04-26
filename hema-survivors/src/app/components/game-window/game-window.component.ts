@@ -20,7 +20,7 @@ export class GameWindowComponent {
   WIDTH = 500;
   HEIGHT = 600;
   ctx: CanvasRenderingContext2D = null as any;
-  delay = 2; // 120 is about 1 frame per second :)
+  delay = 0; // 120 is about 1 frame per second :)
   currentFrame = 0;
   player: Player = null as any;
   enemies: Enemy[] = [];
@@ -38,9 +38,13 @@ export class GameWindowComponent {
     this.player = new Player(innitialPlayerLocation);
     const playerObs = this.playerLocation$.asObservable();
     
-    this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/2}, playerObs));
+
     this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
-    this.enemies.push(new Enemy({x: this.HEIGHT - 10, y: this.WIDTH/2}, playerObs));
+    this.enemies.push(new Enemy({x: 123, y: 123}, playerObs));
+    this.enemies.push(new Enemy({x: 232, y: this.WIDTH/4}, playerObs));
+    this.enemies.push(new Enemy({x: 443, y: 100}, playerObs));
+    this.enemies.push(new Enemy({x: 222, y: this.WIDTH/4}, playerObs));
+    this.enemies.push(new Enemy({x: 34, y: 99}, playerObs));
     
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
@@ -104,13 +108,13 @@ export class GameWindowComponent {
   private drawBackground(x: number, y: number, height: number, width: number): void {
     this.ctx.beginPath();
     this.ctx.rect(x, y, height, width);
-    this.ctx.fillStyle = Color.WATER;
+    this.ctx.fillStyle = Color.BLUE;
     this.ctx.fill();
   }
 
   private drawCircle(location: XYLocation, color: Color): void {
     this.ctx.beginPath();
-    this.ctx.arc(location.x, location.y, 20, 0, 2 * Math.PI);
+    this.ctx.arc(location.x, location.y, 50, 0, 2 * Math.PI);
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }
@@ -118,7 +122,7 @@ export class GameWindowComponent {
   private movePlayerAndClean(): void {
     const playerLocation = this.player.move(this.topLeftCorner, this.bottomRightCorner)
     this.playerLocation$.next(playerLocation);
-    this.drawCircle(playerLocation, Color.WATER);
+    this.drawCircle(playerLocation, Color.BLUE);
   }
 
   private drawPlayerCharacter(): void {
@@ -135,7 +139,7 @@ export class GameWindowComponent {
 
   private moveEnemies(): void {
     this.enemies.forEach((enemy)=> {
-      this.drawCircle(enemy.move(this.topLeftCorner, this.bottomRightCorner), Color.WATER);
+      this.drawCircle(enemy.move(this.topLeftCorner, this.bottomRightCorner), Color.BLUE);
     });
   }
 

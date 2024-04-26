@@ -1,7 +1,8 @@
-import { Observable } from "rxjs";
-import { Color } from "../utils/color";
+import { Observable, skip } from "rxjs";
+import { colorsTable } from "../utils/colorLookUp";
 import { ControlStatus } from "../utils/control-status";
-import { Footprint } from "../utils/footPrint";
+import { Sprite } from "./sprite";
+import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
 export class Player {
@@ -11,9 +12,63 @@ export class Player {
     width: number = 10;
     height: number = 20;
     speed: number = 3;
+    private sprite: Sprite = new Sprite([]);
 
     constructor(innitialLocation: XYLocation) {;
         this.absolutePosition = innitialLocation;
+        this.defineSprinte();
+    }
+
+    private defineSprinte(): void {
+        const data = [
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,0,2,9,4,2,0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,0,2,1,9,1,1,1,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0,2,4,4,9,4,2,2,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,2,4,4,4,9,2,7,2,0,0,0,0,0,0,0],
+            [0,0,0,2,2,2,2,4,4,4,4,9,7,7,2,0,0,0,0,0,0,0],
+            [0,0,2,4,4,5,5,5,5,4,4,9,2,7,2,2,2,0,0,0,0,0],
+            [0,0,2,7,7,4,5,5,5,9,9,9,9,9,2,5,4,2,0,0,0,0],
+            [0,0,2,7,7,7,4,5,5,5,5,8,5,5,4,5,5,4,2,2,0,0],
+            [0,2,7,7,7,7,5,5,5,5,7,7,7,5,4,5,5,4,7,7,2,0],
+            [0,2,7,7,7,5,5,5,5,7,7,7,7,5,5,5,4,2,7,7,7,2],
+            [0,2,7,7,7,7,5,5,7,7,7,8,5,5,5,5,2,7,7,7,7,2],
+            [0,2,2,7,7,7,7,7,7,7,7,7,7,7,5,5,2,7,7,7,7,2],
+            [0,0,2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,0,0],
+            [0,0,0,0,7,7,7,7,7,5,5,9,7,7,7,7,7,7,7,0,0,0],
+            [0,0,0,0,2,7,7,7,5,5,5,9,5,7,7,7,7,2,0,0,0,0],
+            [0,0,0,0,2,5,5,5,5,5,2,5,5,5,2,0,0,0,0,0,0,0],
+            [0,0,0,2,5,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0],
+            [0,0,0,2,5,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0],
+            [0,0,2,5,5,5,5,5,5,5,2,5,5,5,5,2,0,0,0,0,0,0],
+            [0,0,2,2,5,5,5,5,5,5,2,5,5,5,5,5,2,0,0,0,0,0],
+            [0,0,2,5,2,5,5,5,5,2,2,5,5,2,2,2,0,0,0,0,0,0],
+            [0,0,2,5,5,2,2,2,2,5,5,2,2,5,5,2,0,0,0,0,0,0],
+            [0,0,2,5,5,5,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0],
+            [0,2,5,5,5,5,5,2,5,5,2,5,5,5,5,5,2,0,0,0,0,0],
+            [0,2,5,5,5,5,5,2,2,2,2,5,5,5,5,5,2,2,0,0,0,0],
+            [0,2,5,5,5,5,5,2,0,0,0,2,5,5,5,5,5,5,2,0,0,0],
+            [0,2,5,5,5,5,5,2,0,0,0,0,2,5,5,5,5,5,5,2,0,0],
+            [0,2,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,5,2,0,0],
+            [2,5,5,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,2,0,0],
+            [2,5,5,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,2,0,0],
+            [2,5,5,5,5,5,2,0,0,0,0,0,0,2,5,5,5,5,2,0,0,0],
+            [0,2,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,2,0,0,0],
+            [0,2,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,2,0,0,0,0],
+            [0,2,5,5,5,2,0,0,0,0,0,0,0,0,2,8,8,8,2,0,0,0],
+            [0,2,8,8,8,8,2,0,0,0,0,0,0,0,2,8,8,8,8,2,0,0],
+            [0,8,8,8,8,8,8,8,0,0,0,0,0,0,2,8,8,8,8,8,8,2],
+        ];
+        this.sprite = new Sprite([new SpriteFrame(data)]);
     }
 
     public control(stream: Observable<ControlStatus>): void {
@@ -65,14 +120,37 @@ export class Player {
     }
 
     public draw(ctx: CanvasRenderingContext2D): void {
-        ctx.beginPath();
-        ctx.rect(
-            this.absolutePosition.x - this.width/2, 
-            this.absolutePosition.y - this.height/2,
-            this.width,
-            this.height);
-        this.oldAbsolutePosition = this.absolutePosition;
-        ctx.fillStyle = Color.DUCK;
-        ctx.fill();
-    }
+        this.drawPixel(ctx);
+     }
+ 
+     private drawPixel(ctx: CanvasRenderingContext2D): void {
+         this.drawFrame(ctx, this.sprite.frames[0]);   
+     }
+ 
+     private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame): void {
+         const pixelSize = 1;
+         const frameHeight = frame.data.length * pixelSize;
+         const frameWidth = frame.data[0].length * pixelSize;
+         const x = this.absolutePosition.x - frameWidth / 2;
+         const y = this.absolutePosition.y - frameHeight / 2;
+         
+         for (let i: number = 0; i < frame.data.length; i++) {
+             const frameRow = frame.data[i]
+             for (let j: number = 0; j < frameRow.length; j++) {
+                 if (!colorsTable.has(frameRow[j])) {
+                    ctx.fillStyle = "rgba(233, 233, 233, 0)";
+                    skip;
+                 }
+                 ctx.beginPath();
+                 ctx.rect(
+                 x + pixelSize * j,
+                 y + pixelSize * i,
+                 pixelSize,
+                 pixelSize);
+                 this.oldAbsolutePosition = this.absolutePosition;
+                 ctx.fillStyle = colorsTable.get(frameRow[j]) as any;
+                 ctx.fill();
+             }
+         }
+     }
 }
