@@ -22,9 +22,11 @@ export class GameWindowComponent {
   @ViewChild('enemyCanvas') enemyCanvas: any = null;
   WIDTH = 500;
   HEIGHT = 500;
-  ctx: CanvasRenderingContext2D = null as any;
-  heroCtx: CanvasRenderingContext2D = null as any;
-  enemyCtx: CanvasRenderingContext2D = null as any;
+  domContext: CanvasRenderingContext2D = null as any;
+  playerCanvas: HTMLCanvasElement = null as any;
+  playerCtx: CanvasRenderingContext2D = null as any;
+  enemiesCanvas: HTMLCanvasElement = null as any;
+  enemiesCtx: CanvasRenderingContext2D = null as any;
   delay = 0; // 120 is about 1 frame per second :)
   currentFrame = 0;
   player: Player = null as any;
@@ -45,11 +47,6 @@ export class GameWindowComponent {
     
 
     this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
-    this.enemies.push(new Enemy({x: 123, y: 123}, playerObs));
-    this.enemies.push(new Enemy({x: 232, y: this.WIDTH/4}, playerObs));
-    this.enemies.push(new Enemy({x: 443, y: 100}, playerObs));
-    this.enemies.push(new Enemy({x: 222, y: this.WIDTH/4}, playerObs));
-    this.enemies.push(new Enemy({x: 34, y: 99}, playerObs));
     
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
@@ -73,21 +70,30 @@ export class GameWindowComponent {
     this.enemyCanvas.nativeElement.height = 100;
     this.heroCanvas.nativeElement.width = 100;
     this.heroCanvas.nativeElement.height = 100;
-    this.ctx = this.canvas.nativeElement.getContext("2d");
-    this.heroCtx = this.heroCanvas.nativeElement.getContext("2d");
-    this.enemyCtx = this.enemyCanvas.nativeElement.getContext("2d");
 
-    this.drawPlayer();
-    this.drawEnemy();
+    this.domContext = this.canvas.nativeElement.getContext("2d");
+
+    this.playerCanvas = document.createElement('canvas');
+    this.playerCanvas.width = this.WIDTH;
+    this.playerCanvas.height = this.HEIGHT;
+    this.playerCtx = this.playerCanvas.getContext('2d') as any;
+    this.enemiesCanvas = document.createElement('canvas');
+    this.enemiesCanvas.width = this.WIDTH;
+    this.enemiesCanvas.height = this.HEIGHT;
+    this.enemiesCtx = this.playerCanvas.getContext('2d') as any;
+
+    this.drawSpritePlayer();
+    this.drawSpriteEnemy();
+
     this.startGame();
   }
 
-  drawPlayer(): void {
-    this.spriteDrawing.draw(this.heroCtx, this.player.getSprite());
+  drawSpritePlayer(): void {
+    this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), this.player.getSprite());
   }
 
-  drawEnemy(): void {
-    this.spriteDrawing.draw(this.enemyCtx, this.enemies[0].getSprite());
+  drawSpriteEnemy(): void {
+    this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), this.enemies[0].getSprite());
   }
 
 
@@ -120,7 +126,7 @@ export class GameWindowComponent {
 
   private startGame(): void {
     this.drawWater();
-    this.drawPlayerCharacter();
+    this.drawPlayer();
     this.drawBorders()
     window.requestAnimationFrame(() => this.animate());
   }
@@ -130,40 +136,36 @@ export class GameWindowComponent {
   }
 
   private drawBackground(x: number, y: number, height: number, width: number): void {
-    this.ctx.beginPath();
-    this.ctx.rect(x, y, height, width);
-    this.ctx.fillStyle = Color.BLUE;
-    this.ctx.fill();
+    this.domContext.beginPath();
+    this.domContext.rect(x, y, height, width);
+    this.domContext.fillStyle = Color.BLUE;
+    this.domContext.fill();
   }
 
-  private drawCircle(location: XYLocation, color: Color): void {
-    this.ctx.beginPath();
-    this.ctx.arc(location.x, location.y, 50, 0, 2 * Math.PI);
-    this.ctx.fillStyle = color;
-    this.ctx.fill();
-  }
-
-  private movePlayerAndClean(): void {
+  private movePlayer(): void {
     const playerLocation = this.player.move(this.topLeftCorner, this.bottomRightCorner)
     this.playerLocation$.next(playerLocation);
-    this.drawCircle(playerLocation, Color.BLUE);
   }
 
-  private drawPlayerCharacter(): void {
-    this.player.draw(this.ctx, this.heroCanvas.nativeElement);
+  private drawPlayer(): void {
+    this.playerCtx.clearRect(0, 0, 999, 999);
+    this.player.draw(this.playerCtx, this.heroCanvas.nativeElement);
+    this.domContext.drawImage(this.playerCanvas, 0, 0);
   }
 
   private drawBorders(): void {
-    this.border.draw(this.ctx);
+    this.border.draw(this.domContext);
   }
 
   private drawEnemies(): void {
-    this.enemies.forEach(enemy => enemy.draw(this.ctx, this.enemyCanvas.nativeElement));
+    this.enemiesCtx.clearRect(0, 0, 999, 999);
+    this.enemies.forEach(enemy => enemy.draw(this.domContext, this.enemyCanvas.nativeElement));
+    this.domContext.drawImage(this.enemiesCanvas, 0, 0);
   }
 
   private moveEnemies(): void {
     this.enemies.forEach((enemy)=> {
-      this.drawCircle(enemy.move(this.topLeftCorner, this.bottomRightCorner), Color.BLUE);
+      enemy.move(this.topLeftCorner, this.bottomRightCorner);
     });
   }
 
@@ -172,11 +174,15 @@ export class GameWindowComponent {
       this.currentFrame++;
       window.requestAnimationFrame(() => this.animate());
     } else {
-      this.movePlayerAndClean();
+      this.domContext.clearRect(0, 0, 999, 999);
+      this.movePlayer();
       this.moveEnemies();
+
+      this.drawWater();
       this.drawBorders();
       this.drawEnemies();
-      this.drawPlayerCharacter();
+      this.drawPlayer();
+
       this.currentFrame = 0;
       window.requestAnimationFrame(() => this.animate());
     }
