@@ -1,17 +1,18 @@
 import { Observable, skip } from "rxjs";
 import { colorsTable } from "../utils/colorLookUp";
 import { ControlStatus } from "../utils/control-status";
+import { PIXEL_HEIGHT } from "../utils/globals";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
 export class Player {
-    absolutePosition: XYLocation = new XYLocation(0, 0);
-    controlStatus: ControlStatus = null as any;
-    oldAbsolutePosition: XYLocation = new XYLocation(0, 0);
-    width: number = 10;
-    height: number = 20;
-    speed: number = 3;
+    private absolutePosition: XYLocation = new XYLocation(0, 0);
+    private controlStatus: ControlStatus = null as any;
+    private oldAbsolutePosition: XYLocation = new XYLocation(0, 0);
+    private width: number = 10;
+    private height: number = 20;
+    private speed: number = 3;
     private sprite: Sprite = new Sprite([]);
 
     constructor(innitialLocation: XYLocation) {;
@@ -69,6 +70,12 @@ export class Player {
             [0,8,8,8,8,8,8,8,0,0,0,0,0,0,2,8,8,8,8,8,8,2],
         ];
         this.sprite = new Sprite([new SpriteFrame(data)]);
+        this.height = data.length * PIXEL_HEIGHT;
+        this.width = data[0].length * PIXEL_HEIGHT;
+    }
+
+    public getSprite(): Sprite {
+        return this.sprite;
     }
 
     public control(stream: Observable<ControlStatus>): void {
@@ -119,38 +126,10 @@ export class Player {
         this.absolutePosition.y = adjustedY;
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void {
-        this.drawPixel(ctx);
-     }
- 
-     private drawPixel(ctx: CanvasRenderingContext2D): void {
-         this.drawFrame(ctx, this.sprite.frames[0]);   
-     }
- 
-     private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame): void {
-         const pixelSize = 1;
-         const frameHeight = frame.data.length * pixelSize;
-         const frameWidth = frame.data[0].length * pixelSize;
-         const x = this.absolutePosition.x - frameWidth / 2;
-         const y = this.absolutePosition.y - frameHeight / 2;
-         
-         for (let i: number = 0; i < frame.data.length; i++) {
-             const frameRow = frame.data[i]
-             for (let j: number = 0; j < frameRow.length; j++) {
-                 if (!colorsTable.has(frameRow[j])) {
-                    ctx.fillStyle = "rgba(233, 233, 233, 0)";
-                    skip;
-                 }
-                 ctx.beginPath();
-                 ctx.rect(
-                 x + pixelSize * j,
-                 y + pixelSize * i,
-                 pixelSize,
-                 pixelSize);
-                 this.oldAbsolutePosition = this.absolutePosition;
-                 ctx.fillStyle = colorsTable.get(frameRow[j]) as any;
-                 ctx.fill();
-             }
-         }
-     }
+    public draw(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
+        const x = this.absolutePosition.x - sourceCtx.height/2;
+        const y = this.absolutePosition.y - sourceCtx.width/2;
+        targetCtx.drawImage(sourceCtx, x, y);
+        this.oldAbsolutePosition = this.absolutePosition;
+    }
 }

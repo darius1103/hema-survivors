@@ -1,10 +1,19 @@
 .game-area {
     width: 500px;
-    height: 500px;
-    background-color: red;
+    height: 600px;
 }
 
 .canvas {
     width: 500px;
-    height: 600px;
+    height: 500px;
+}
+
+.hero-canvas {
+    width: 100px;
+    height: 100px;
+}
+
+.enemy-canvas {
+    width: 100px;
+    height: 100px;
 }

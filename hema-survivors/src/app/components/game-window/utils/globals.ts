@@ -1,0 +1,1 @@
+export const PIXEL_HEIGHT = 1;

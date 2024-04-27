@@ -76,6 +76,10 @@ export class Enemy {
         this.sprite = new Sprite([new SpriteFrame(data)]);
     }
 
+    public getSprite(): Sprite {
+        return this.sprite;
+    }
+
     private determineControlStatus(): void {
         const sideSpacing = [
             this.width / 2 + 3, 
@@ -131,38 +135,10 @@ export class Enemy {
         this.absolutePosition.y = adjustedY;
     }
 
-    public draw(ctx: CanvasRenderingContext2D): void {
-       this.drawPixel(ctx);
-    }
-
-    private drawPixel(ctx: CanvasRenderingContext2D): void {
-        this.drawFrame(ctx, this.sprite.frames[0]);   
-    }
-
-    private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame): void {
-        const pixelSize = 1;
-        const frameHeight = frame.data.length * pixelSize;
-        const frameWidth = frame.data[0].length * pixelSize;
-        const x = this.absolutePosition.x - frameWidth / 2;
-        const y = this.absolutePosition.y - frameHeight / 2;
-        
-        for (let i: number = 0; i < frame.data.length; i++) {
-            const frameRow = frame.data[i]
-            for (let j: number = 0; j < frameRow.length; j++) {
-                if (!colorsTable.has(frameRow[j])) {
-                    ctx.fillStyle = "rgba(233, 233, 233, 0)";
-                    skip;
-                }
-                ctx.beginPath();
-                ctx.rect(
-                x + pixelSize * j,
-                y + pixelSize * i,
-                pixelSize,
-                pixelSize);
-                this.oldAbsolutePosition = this.absolutePosition;
-                ctx.fillStyle = colorsTable.get(frameRow[j]) as any;
-                ctx.fill();
-            }
-        }
+    public draw(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
+        const x = this.absolutePosition.x - sourceCtx.height/2;
+        const y = this.absolutePosition.y - sourceCtx.width/2;
+        targetCtx.drawImage(sourceCtx, x, y);
+        this.oldAbsolutePosition = this.absolutePosition;
     }
 }

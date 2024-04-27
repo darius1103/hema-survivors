@@ -7,6 +7,7 @@ import { Color } from './utils/color';
 import { ControlStatus } from './utils/control-status';
 import { XYLocation } from './classes/xylocation';
 import { Enemy } from './classes/enemy';
+import { SpriteDrawingService } from './services/sprite-drawing.service';
 
 @Component({
   selector: 'app-game-window',
@@ -17,9 +18,13 @@ import { Enemy } from './classes/enemy';
 })
 export class GameWindowComponent {
   @ViewChild('canvas') canvas: any = null;
+  @ViewChild('heroCanvas') heroCanvas: any = null;
+  @ViewChild('enemyCanvas') enemyCanvas: any = null;
   WIDTH = 500;
-  HEIGHT = 600;
+  HEIGHT = 500;
   ctx: CanvasRenderingContext2D = null as any;
+  heroCtx: CanvasRenderingContext2D = null as any;
+  enemyCtx: CanvasRenderingContext2D = null as any;
   delay = 0; // 120 is about 1 frame per second :)
   currentFrame = 0;
   player: Player = null as any;
@@ -31,7 +36,7 @@ export class GameWindowComponent {
   topLeftCorner: XYLocation = new XYLocation(25, 25);
   bottomRightCorner: XYLocation = new XYLocation(375, 475);
 
-  constructor () {
+  constructor (private spriteDrawing: SpriteDrawingService) {
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
     const innitialPlayerLocation = {x: this.HEIGHT/2, y: this.WIDTH/2};
     this.playerLocation$ = new BehaviorSubject<XYLocation>(innitialPlayerLocation);
@@ -57,15 +62,34 @@ export class GameWindowComponent {
   }
 
   ngAfterViewInit() {
-    if (this.canvas == null) {
+    if (this.canvas == null || this.heroCanvas == null || this.enemyCanvas == null) {
         console.log('null canvas...')
         return;
     }
+
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
+    this.enemyCanvas.nativeElement.width = 100;
+    this.enemyCanvas.nativeElement.height = 100;
+    this.heroCanvas.nativeElement.width = 100;
+    this.heroCanvas.nativeElement.height = 100;
     this.ctx = this.canvas.nativeElement.getContext("2d");
+    this.heroCtx = this.heroCanvas.nativeElement.getContext("2d");
+    this.enemyCtx = this.enemyCanvas.nativeElement.getContext("2d");
+
+    this.drawPlayer();
+    this.drawEnemy();
     this.startGame();
   }
+
+  drawPlayer(): void {
+    this.spriteDrawing.draw(this.heroCtx, this.player.getSprite());
+  }
+
+  drawEnemy(): void {
+    this.spriteDrawing.draw(this.enemyCtx, this.enemies[0].getSprite());
+  }
+
 
   handleInput(event: any, type: string): void {
     if (this.controlKeys.indexOf(event.key) < 0) {
@@ -126,7 +150,7 @@ export class GameWindowComponent {
   }
 
   private drawPlayerCharacter(): void {
-    this.player.draw(this.ctx);
+    this.player.draw(this.ctx, this.heroCanvas.nativeElement);
   }
 
   private drawBorders(): void {
@@ -134,7 +158,7 @@ export class GameWindowComponent {
   }
 
   private drawEnemies(): void {
-    this.enemies.forEach(enemy => enemy.draw(this.ctx));
+    this.enemies.forEach(enemy => enemy.draw(this.ctx, this.enemyCanvas.nativeElement));
   }
 
   private moveEnemies(): void {
