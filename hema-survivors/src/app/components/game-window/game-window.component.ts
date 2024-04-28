@@ -23,10 +23,6 @@ export class GameWindowComponent {
   private WIDTH = 500;
   private HEIGHT = 500;
   private domContext: CanvasRenderingContext2D = null as any;
-  private playerCanvas: HTMLCanvasElement = null as any;
-  private playerCtx: CanvasRenderingContext2D = null as any;
-  private enemiesCanvas: HTMLCanvasElement = null as any;
-  private enemiesCtx: CanvasRenderingContext2D = null as any;
   private delay = 0; // 120 is about 1 frame per second :)
   private currentFrame = 0;
   private player: Player = null as any;
@@ -35,8 +31,8 @@ export class GameWindowComponent {
   private controlKeys = 'wasd';
   private control$: BehaviorSubject<ControlStatus>;
   private playerLocation$: BehaviorSubject<XYLocation>;
-  private topLeftCorner: XYLocation = new XYLocation(25, 25);
-  private bottomRightCorner: XYLocation = new XYLocation(475, 475);
+  private topLeftCorner: XYLocation = new XYLocation(-this.HEIGHT, -this.WIDTH);
+  private bottomRightCorner: XYLocation = new XYLocation(this.HEIGHT, this.WIDTH);
   private innitialPlayerLocation = {x: this.HEIGHT/2, y: this.WIDTH/2};
   private requireTranslation: XYLocation = new XYLocation(0,0);
 
@@ -46,11 +42,11 @@ export class GameWindowComponent {
     this.player = new Player(this.innitialPlayerLocation);
     const playerObs = this.playerLocation$.asObservable();
     
-
     this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
-    
+    this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
+
     fromEvent(document, 'keydown')
       .pipe(takeUntilDestroyed(), distinct())
       .subscribe(event => this.handleInput(event, 'keydown'));
@@ -73,19 +69,6 @@ export class GameWindowComponent {
     this.heroCanvas.nativeElement.height = 100;
 
     this.domContext = this.canvas.nativeElement.getContext("2d");
-
-    this.playerCanvas = document.createElement('canvas');
-    this.playerCanvas.width = this.WIDTH;
-    this.playerCanvas.height = this.HEIGHT;
-    this.playerCtx = this.playerCanvas.getContext('2d') as any;
-    this.enemiesCanvas = document.createElement('canvas');
-    this.enemiesCanvas.width = this.WIDTH;
-    this.enemiesCanvas.height = this.HEIGHT;
-    this.enemiesCtx = this.playerCanvas.getContext('2d') as any;
-
-    this.drawSpritePlayer();
-    this.drawSpriteEnemy();
-
     this.startGame();
   }
 
@@ -96,7 +79,6 @@ export class GameWindowComponent {
   drawSpriteEnemy(): void {
     this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), this.enemies[0].getSprite());
   }
-
 
   handleInput(event: any, type: string): void {
     if (this.controlKeys.indexOf(event.key) < 0) {
@@ -122,24 +104,23 @@ export class GameWindowComponent {
       }
     }
     this.control$.next(currentState);
-    // this.animate();
+    window.requestAnimationFrame(() => this.animate());
   }
 
-
   private startGame(): void {
-    this.drawWater();
+    this.drawSpritePlayer();
+    this.drawSpriteEnemy();
+    this.drawBackground();
     this.drawPlayer();
     this.drawBorders();
     window.requestAnimationFrame(() => this.animate());
   }
 
-  private drawWater(): void {
-    this.drawBackground(0, 0, this.HEIGHT, this.WIDTH);
-  }
-
-  private drawBackground(x: number, y: number, height: number, width: number): void {
+  private drawBackground(): void {
     this.domContext.beginPath();
-    this.domContext.rect(x, y, height, width);
+    this.domContext.rect(
+      -(this.HEIGHT * 2), -(this.WIDTH * 2), 
+      (this.HEIGHT * 4), (this.WIDTH * 4));
     this.domContext.fillStyle = Color.BLUE;
     this.domContext.fill();
   }
@@ -156,10 +137,7 @@ export class GameWindowComponent {
   }
 
   private drawPlayer(): void {
-    this.playerCtx.clearRect(0, 0, 999, 999);
-    this.requireTranslation = new XYLocation(0,0);
-    this.player.draw(this.playerCtx, this.heroCanvas.nativeElement);
-    this.domContext.drawImage(this.playerCanvas, 0, 0);
+    this.player.draw(this.domContext, this.heroCanvas.nativeElement);
   }
 
   private drawBorders(): void {
@@ -167,9 +145,7 @@ export class GameWindowComponent {
   }
 
   private drawEnemies(): void {
-    this.enemiesCtx.clearRect(0, 0, 999, 999);
     this.enemies.forEach(enemy => enemy.draw(this.domContext, this.enemyCanvas.nativeElement));
-    this.domContext.drawImage(this.enemiesCanvas, 0, 0);
   }
 
   private moveEnemies(): void {
@@ -183,11 +159,10 @@ export class GameWindowComponent {
       this.currentFrame++;
       window.requestAnimationFrame(() => this.animate());
     } else {
-      this.domContext.clearRect(0, 0, 999, 999);
       this.movePlayer();
       this.moveEnemies();
 
-      this.drawWater();
+      this.drawBackground();
       this.drawBorders();
       this.drawEnemies();
       this.drawPlayer();

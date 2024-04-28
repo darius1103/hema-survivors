@@ -12,7 +12,7 @@ export class Player {
     private oldAbsolutePosition: XYLocation = new XYLocation(0, 0);
     private width: number = 10;
     private height: number = 20;
-    private speed: number = 2;
+    private speed: number = 20;
     private sprite: Sprite = new Sprite([]);
 
     constructor(innitialLocation: XYLocation) {;
