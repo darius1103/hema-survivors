@@ -13,15 +13,11 @@ export class SpriteDrawingService {
 
   public draw(ctx: CanvasRenderingContext2D, sprite: Sprite): void {
     this.drawFrame(ctx, sprite.frames[0]);   
-    console.log('lala');
   }
 
   private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame): void {
     const frameHeight = frame.data.length * PIXEL_HEIGHT;
     const frameWidth = frame.data[0].length * PIXEL_HEIGHT;
-    ctx.translate(50, 50);
-    const x = -frameWidth / 2;
-    const y = -frameHeight / 2;
     for (let i: number = 0; i < frame.data.length; i++) {
       const frameRow = frame.data[i]
       for (let j: number = 0; j < frameRow.length; j++) {
@@ -31,13 +27,17 @@ export class SpriteDrawingService {
         }
         ctx.beginPath();
         ctx.rect(
-        x + PIXEL_HEIGHT * j,
-        y + PIXEL_HEIGHT * i,
+        PIXEL_HEIGHT * j,
+        PIXEL_HEIGHT * i,
         PIXEL_HEIGHT,
         PIXEL_HEIGHT);
         ctx.fillStyle = colorsTable.get(frameRow[j]) as any;
         ctx.fill();
       }
     }
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(frameWidth, frameHeight);
+    ctx.stroke();
   }
 }

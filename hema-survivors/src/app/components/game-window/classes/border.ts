@@ -11,7 +11,7 @@ export class Border {
     }
 
     public draw(ctx: CanvasRenderingContext2D): void {
-        ctx.lineWidth = 15;
+        ctx.lineWidth = 1;
         this.writePositions(ctx);
         ctx.strokeRect(
             this.topLeftCorner.x, 

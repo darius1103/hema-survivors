@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 import { ControlStatus } from "../utils/control-status";
 import { PIXEL_HEIGHT } from "../utils/globals";
+import { FRAME_ONE } from "../utils/sprite-data";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
@@ -21,57 +22,9 @@ export class Character {
     }
 
     private defineSprinte(): void {
-        const data = [
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,9,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,2,9,4,2,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,2,1,9,1,1,1,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,2,4,4,9,4,2,2,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,2,4,4,4,9,2,7,2,0,0,0,0,0,0,0],
-            [0,0,0,2,2,2,2,4,4,4,4,9,7,7,2,0,0,0,0,0,0,0],
-            [0,0,2,4,4,5,5,5,5,4,4,9,2,7,2,2,2,0,0,0,0,0],
-            [0,0,2,7,7,4,5,5,5,9,9,9,9,9,2,5,4,2,0,0,0,0],
-            [0,0,2,7,7,7,4,5,5,5,5,8,5,5,4,5,5,4,2,2,0,0],
-            [0,2,7,7,7,7,5,5,5,5,7,7,7,5,4,5,5,4,7,7,2,0],
-            [0,2,7,7,7,5,5,5,5,7,7,7,7,5,5,5,4,2,7,7,7,2],
-            [0,2,7,7,7,7,5,5,7,7,7,8,5,5,5,5,2,7,7,7,7,2],
-            [0,2,2,7,7,7,7,7,7,7,7,7,7,7,5,5,2,7,7,7,7,2],
-            [0,0,2,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,0,0],
-            [0,0,0,0,7,7,7,7,7,5,5,9,7,7,7,7,7,7,7,0,0,0],
-            [0,0,0,0,2,7,7,7,5,5,5,9,5,7,7,7,7,2,0,0,0,0],
-            [0,0,0,0,2,5,5,5,5,5,2,5,5,5,2,0,0,0,0,0,0,0],
-            [0,0,0,2,5,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0],
-            [0,0,0,2,5,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0,0],
-            [0,0,2,5,5,5,5,5,5,5,2,5,5,5,5,2,0,0,0,0,0,0],
-            [0,0,2,2,5,5,5,5,5,5,2,5,5,5,5,5,2,0,0,0,0,0],
-            [0,0,2,5,2,5,5,5,5,2,2,5,5,2,2,2,0,0,0,0,0,0],
-            [0,0,2,5,5,2,2,2,2,5,5,2,2,5,5,2,0,0,0,0,0,0],
-            [0,0,2,5,5,5,5,5,5,5,5,5,5,5,5,2,0,0,0,0,0,0],
-            [0,2,5,5,5,5,5,2,5,5,2,5,5,5,5,5,2,0,0,0,0,0],
-            [0,2,5,5,5,5,5,2,2,2,2,5,5,5,5,5,2,2,0,0,0,0],
-            [0,2,5,5,5,5,5,2,0,0,0,2,5,5,5,5,5,5,2,0,0,0],
-            [0,2,5,5,5,5,5,2,0,0,0,0,2,5,5,5,5,5,5,2,0,0],
-            [0,2,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,5,2,0,0],
-            [2,5,5,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,2,0,0],
-            [2,5,5,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,2,0,0],
-            [2,5,5,5,5,5,2,0,0,0,0,0,0,2,5,5,5,5,2,0,0,0],
-            [0,2,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,5,2,0,0,0],
-            [0,2,5,5,5,2,0,0,0,0,0,0,0,2,5,5,5,2,0,0,0,0],
-            [0,2,5,5,5,2,0,0,0,0,0,0,0,0,2,8,8,8,2,0,0,0],
-            [0,2,8,8,8,8,2,0,0,0,0,0,0,0,2,8,8,8,8,2,0,0],
-            [0,8,8,8,8,8,8,8,0,0,0,0,0,0,2,8,8,8,8,8,8,2],
-        ];
-        this.sprite = new Sprite([new SpriteFrame(data)]);
-        this.height = data.length * PIXEL_HEIGHT;
-        this.width = data[0].length * PIXEL_HEIGHT;
+        this.sprite = new Sprite([new SpriteFrame(FRAME_ONE)]);
+        this.height = FRAME_ONE.length * PIXEL_HEIGHT;
+        this.width = FRAME_ONE[0].length * PIXEL_HEIGHT;
     }
 
     public getSprite(): Sprite {
@@ -110,8 +63,8 @@ export class Character {
 
     private adjustIfInBounds(topLeftCorner: XYLocation, bottomRightCorner: XYLocation, deltaX: number, deltaY: number): void {
         const sideSpacing = [
-            this.width / 2 + 5, 
-            this.height / 2 + 5];
+            this.width / 2, 
+            this.height / 2];
         var adjustedX = this.absolutePosition.x + deltaX;
         if (adjustedX < topLeftCorner.x + sideSpacing[0]) {
             adjustedX = topLeftCorner.x + sideSpacing[0];
@@ -131,8 +84,8 @@ export class Character {
     }
 
     public draw(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
-        const x = Math.round(this.absolutePosition.x - sourceCtx.height/2);
-        const y = Math.round(this.absolutePosition.y - sourceCtx.width/2);
+        const x = Math.round(this.absolutePosition.x - sourceCtx.width/2);
+        const y = Math.round(this.absolutePosition.y - sourceCtx.height/2);
         targetCtx.drawImage(sourceCtx, x, y);
         this.oldAbsolutePosition = this.absolutePosition;
     }

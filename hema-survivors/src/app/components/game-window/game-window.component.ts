@@ -8,11 +8,12 @@ import { ControlStatus } from './utils/control-status';
 import { XYLocation } from './classes/xylocation';
 import { Enemy } from './classes/enemy';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
+import { PIXEL_HEIGHT } from './utils/globals';
+import { FRAME_ONE } from './utils/sprite-data';
 
 @Component({
   selector: 'app-game-window',
   standalone: true,
-  imports: [],
   templateUrl: './game-window.component.html',
   styleUrl: './game-window.component.scss'
 })
@@ -58,19 +59,24 @@ export class GameWindowComponent {
 
   ngAfterViewInit() {
     if (this.canvas == null || this.heroCanvas == null || this.enemyCanvas == null) {
-        console.log('null canvas...')
+        console.log('null canvases...')
         return;
     }
 
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
-    this.enemyCanvas.nativeElement.width = 100;
-    this.enemyCanvas.nativeElement.height = 100;
-    this.heroCanvas.nativeElement.width = 100;
-    this.heroCanvas.nativeElement.height = 100;
+    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * FRAME_ONE[0].length;
+    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * FRAME_ONE.length;
+    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * FRAME_ONE[0].length;;
+    this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * FRAME_ONE.length;;
 
     this.domContext = this.canvas.nativeElement.getContext("2d");
     this.startGame();
+  }
+
+  toggleDebug(): void {
+    this.DEBUG = !this.DEBUG;
+    window.requestAnimationFrame(() => this.animate());
   }
 
   drawSpritePlayer(): void {
@@ -78,6 +84,9 @@ export class GameWindowComponent {
   }
 
   drawSpriteEnemy(): void {
+    if (this.enemies.length <= 0) {
+      return;
+    }
     this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), this.enemies[0].getSprite());
   }
 
@@ -132,7 +141,8 @@ export class GameWindowComponent {
     const playerLocation = this.player.move(this.topLeftCorner, this.bottomRightCorner);
     this.requireTranslation = new XYLocation(
       playerLocation.x - this.playerLocation$.getValue().x,
-      playerLocation.y - this.playerLocation$.getValue().y);
+      playerLocation.y - this.playerLocation$.getValue().y
+    );
     this.domContext.translate(-this.requireTranslation.x, -this.requireTranslation.y);
     this.playerLocation$.next(new XYLocation(playerLocation.x, playerLocation.y));
   }
