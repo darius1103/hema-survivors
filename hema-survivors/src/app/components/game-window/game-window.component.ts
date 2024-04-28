@@ -22,6 +22,7 @@ export class GameWindowComponent {
   @ViewChild('enemyCanvas') enemyCanvas: any = null;
   private WIDTH = 500;
   private HEIGHT = 500;
+  private DEBUG = false;
   private domContext: CanvasRenderingContext2D = null as any;
   private delay = 0; // 120 is about 1 frame per second :)
   private currentFrame = 0;
@@ -104,7 +105,9 @@ export class GameWindowComponent {
       }
     }
     this.control$.next(currentState);
-    window.requestAnimationFrame(() => this.animate());
+    if (this.DEBUG) {
+      window.requestAnimationFrame(() => this.animate());
+    }
   }
 
   private startGame(): void {
@@ -131,8 +134,6 @@ export class GameWindowComponent {
       playerLocation.x - this.playerLocation$.getValue().x,
       playerLocation.y - this.playerLocation$.getValue().y);
     this.domContext.translate(-this.requireTranslation.x, -this.requireTranslation.y);
-    console.log('hello');
-    // this.requireTranslation = new XYLocation(0, 0);
     this.playerLocation$.next(new XYLocation(playerLocation.x, playerLocation.y));
   }
 
@@ -168,7 +169,9 @@ export class GameWindowComponent {
       this.drawPlayer();
 
       this.currentFrame = 0;
-      window.requestAnimationFrame(() => this.animate());
+      if (!this.DEBUG) {
+        window.requestAnimationFrame(() => this.animate());
+      }
     }
   }
 }
