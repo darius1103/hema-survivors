@@ -12,11 +12,12 @@ export class Player {
     private oldAbsolutePosition: XYLocation = new XYLocation(0, 0);
     private width: number = 10;
     private height: number = 20;
-    private speed: number = 3;
+    private speed: number = 2;
     private sprite: Sprite = new Sprite([]);
 
     constructor(innitialLocation: XYLocation) {;
-        this.absolutePosition = innitialLocation;
+        this.absolutePosition.x = innitialLocation.x;
+        this.absolutePosition.y = innitialLocation.y;
         this.defineSprinte();
     }
 
@@ -83,7 +84,7 @@ export class Player {
     }
 
     public move(topLeftCorner: XYLocation, bottomRightCorner: XYLocation): XYLocation {
-        // Primary movemnt up down
+        // Primary movement up down
         var deltaY = 0;
         deltaY += this.controlStatus.DOWN ? 1 : 0;
         deltaY += this.controlStatus.UP ? -1 : 0;
@@ -93,8 +94,8 @@ export class Player {
         deltaX += this.controlStatus.LEFT ? -1 : 0;
         // Adjust for diagonal movement
         const square = 1/Math.sqrt(2);
-        deltaX *= this.controlStatus.LEFT || this.controlStatus.RIGHT ? square : 1;
-        deltaY *= this.controlStatus.UP || this.controlStatus.DOWN ? square : 1;
+        deltaX *= this.controlStatus.UP || this.controlStatus.DOWN ? square : 1;
+        deltaY *= this.controlStatus.RIGHT || this.controlStatus.LEFT ? square : 1;
 
         // Adjust for seepd
         deltaX *= this.speed;

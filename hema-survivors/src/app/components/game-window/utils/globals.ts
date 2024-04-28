@@ -1,1 +1,1 @@
-export const PIXEL_HEIGHT = 1;
+export const PIXEL_HEIGHT = 2;

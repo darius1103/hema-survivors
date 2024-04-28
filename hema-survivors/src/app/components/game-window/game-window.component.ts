@@ -20,29 +20,30 @@ export class GameWindowComponent {
   @ViewChild('canvas') canvas: any = null;
   @ViewChild('heroCanvas') heroCanvas: any = null;
   @ViewChild('enemyCanvas') enemyCanvas: any = null;
-  WIDTH = 500;
-  HEIGHT = 500;
-  domContext: CanvasRenderingContext2D = null as any;
-  playerCanvas: HTMLCanvasElement = null as any;
-  playerCtx: CanvasRenderingContext2D = null as any;
-  enemiesCanvas: HTMLCanvasElement = null as any;
-  enemiesCtx: CanvasRenderingContext2D = null as any;
-  delay = 0; // 120 is about 1 frame per second :)
-  currentFrame = 0;
-  player: Player = null as any;
-  enemies: Enemy[] = [];
-  border: Border = null as any;
-  controlKeys = 'wasd';
-  control$: BehaviorSubject<ControlStatus>;
-  playerLocation$: BehaviorSubject<XYLocation>;
-  topLeftCorner: XYLocation = new XYLocation(25, 25);
-  bottomRightCorner: XYLocation = new XYLocation(375, 475);
+  private WIDTH = 500;
+  private HEIGHT = 500;
+  private domContext: CanvasRenderingContext2D = null as any;
+  private playerCanvas: HTMLCanvasElement = null as any;
+  private playerCtx: CanvasRenderingContext2D = null as any;
+  private enemiesCanvas: HTMLCanvasElement = null as any;
+  private enemiesCtx: CanvasRenderingContext2D = null as any;
+  private delay = 0; // 120 is about 1 frame per second :)
+  private currentFrame = 0;
+  private player: Player = null as any;
+  private enemies: Enemy[] = [];
+  private border: Border = null as any;
+  private controlKeys = 'wasd';
+  private control$: BehaviorSubject<ControlStatus>;
+  private playerLocation$: BehaviorSubject<XYLocation>;
+  private topLeftCorner: XYLocation = new XYLocation(25, 25);
+  private bottomRightCorner: XYLocation = new XYLocation(475, 475);
+  private innitialPlayerLocation = {x: this.HEIGHT/2, y: this.WIDTH/2};
+  private requireTranslation: XYLocation = new XYLocation(0,0);
 
   constructor (private spriteDrawing: SpriteDrawingService) {
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
-    const innitialPlayerLocation = {x: this.HEIGHT/2, y: this.WIDTH/2};
-    this.playerLocation$ = new BehaviorSubject<XYLocation>(innitialPlayerLocation);
-    this.player = new Player(innitialPlayerLocation);
+    this.playerLocation$ = new BehaviorSubject<XYLocation>(this.innitialPlayerLocation);
+    this.player = new Player(this.innitialPlayerLocation);
     const playerObs = this.playerLocation$.asObservable();
     
 
@@ -121,13 +122,14 @@ export class GameWindowComponent {
       }
     }
     this.control$.next(currentState);
+    // this.animate();
   }
 
 
   private startGame(): void {
     this.drawWater();
     this.drawPlayer();
-    this.drawBorders()
+    this.drawBorders();
     window.requestAnimationFrame(() => this.animate());
   }
 
@@ -143,12 +145,19 @@ export class GameWindowComponent {
   }
 
   private movePlayer(): void {
-    const playerLocation = this.player.move(this.topLeftCorner, this.bottomRightCorner)
-    this.playerLocation$.next(playerLocation);
+    const playerLocation = this.player.move(this.topLeftCorner, this.bottomRightCorner);
+    this.requireTranslation = new XYLocation(
+      playerLocation.x - this.playerLocation$.getValue().x,
+      playerLocation.y - this.playerLocation$.getValue().y);
+    this.domContext.translate(-this.requireTranslation.x, -this.requireTranslation.y);
+    console.log('hello');
+    // this.requireTranslation = new XYLocation(0, 0);
+    this.playerLocation$.next(new XYLocation(playerLocation.x, playerLocation.y));
   }
 
   private drawPlayer(): void {
     this.playerCtx.clearRect(0, 0, 999, 999);
+    this.requireTranslation = new XYLocation(0,0);
     this.player.draw(this.playerCtx, this.heroCanvas.nativeElement);
     this.domContext.drawImage(this.playerCanvas, 0, 0);
   }
