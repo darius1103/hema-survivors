@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Sprite } from '../classes/sprite';
 import { SpriteFrame } from '../classes/sprite-frame';
 import { colorsTable } from '../utils/colorLookUp';
-import { PIXEL_HEIGHT } from '../utils/globals';
+import { DEBUG_MODE, PIXEL_HEIGHT } from '../utils/globals';
 
 @Injectable({
   providedIn: 'root'
@@ -35,9 +35,11 @@ export class SpriteDrawingService {
         ctx.fill();
       }
     }
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(frameWidth, frameHeight);
-    ctx.stroke();
+    if (DEBUG_MODE) {
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(frameWidth, frameHeight);
+      ctx.stroke();
+    }
   }
 }

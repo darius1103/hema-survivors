@@ -8,7 +8,7 @@ import { ControlStatus } from './utils/control-status';
 import { XYLocation } from './classes/xylocation';
 import { Enemy } from './classes/enemy';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
-import { PIXEL_HEIGHT } from './utils/globals';
+import { DEBUG_MODE, PIXEL_HEIGHT, toggleDebugMode } from './utils/globals';
 import { FRAME_ONE } from './utils/sprite-data';
 
 @Component({
@@ -75,7 +75,7 @@ export class GameWindowComponent {
   }
 
   toggleDebug(): void {
-    this.DEBUG = !this.DEBUG;
+    toggleDebugMode();
     window.requestAnimationFrame(() => this.animate());
   }
 
@@ -114,7 +114,7 @@ export class GameWindowComponent {
       }
     }
     this.control$.next(currentState);
-    if (this.DEBUG) {
+    if (DEBUG_MODE) {
       window.requestAnimationFrame(() => this.animate());
     }
   }
@@ -179,7 +179,7 @@ export class GameWindowComponent {
       this.drawPlayer();
 
       this.currentFrame = 0;
-      if (!this.DEBUG) {
+      if (!DEBUG_MODE) {
         window.requestAnimationFrame(() => this.animate());
       }
     }
