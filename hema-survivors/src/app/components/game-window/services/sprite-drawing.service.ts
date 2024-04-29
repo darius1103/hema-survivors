@@ -12,10 +12,12 @@ export class SpriteDrawingService {
   constructor() { }
 
   public draw(ctx: CanvasRenderingContext2D, sprite: Sprite): void {
-    this.drawFrame(ctx, sprite.frames[0]);   
+    for (let i = 0; i < sprite.frames.length; i++) {
+      this.drawFrame(ctx, sprite.frames[i], i);   
+    }
   }
 
-  private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame): void {
+  private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame, offset: number = 0): void {
     const frameHeight = frame.data.length * PIXEL_HEIGHT;
     const frameWidth = frame.data[0].length * PIXEL_HEIGHT;
     for (let i: number = 0; i < frame.data.length; i++) {
@@ -27,7 +29,7 @@ export class SpriteDrawingService {
         }
         ctx.beginPath();
         ctx.rect(
-        PIXEL_HEIGHT * j,
+        PIXEL_HEIGHT * j + offset * frameWidth,
         PIXEL_HEIGHT * i,
         PIXEL_HEIGHT,
         PIXEL_HEIGHT);

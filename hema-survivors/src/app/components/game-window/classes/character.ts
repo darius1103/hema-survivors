@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { ControlStatus } from "../utils/control-status";
 import { PIXEL_HEIGHT } from "../utils/globals";
-import { FRAME_ONE } from "../utils/sprite-data";
+import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
@@ -14,6 +14,7 @@ export class Character {
     public height: number = 0;
     private speed: number = 1;
     private sprite: Sprite = new Sprite([]);
+    private animationState: number = 0;
 
     constructor(innitialLocation: XYLocation) {
         this.absolutePosition.x = innitialLocation.x;
@@ -22,7 +23,7 @@ export class Character {
     }
 
     private defineSprinte(): void {
-        this.sprite = new Sprite([new SpriteFrame(FRAME_ONE)]);
+        this.sprite = new Sprite([new SpriteFrame(FRAME_ONE), new SpriteFrame(FRAME_TWO)]);
         this.height = FRAME_ONE.length * PIXEL_HEIGHT;
         this.width = FRAME_ONE[0].length * PIXEL_HEIGHT;
     }
@@ -84,9 +85,11 @@ export class Character {
     }
 
     public draw(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
+        const offset = this.animationState < 100 ? this.width : 1;
         const x = Math.round(this.absolutePosition.x - sourceCtx.width/2);
         const y = Math.round(this.absolutePosition.y - sourceCtx.height/2);
-        targetCtx.drawImage(sourceCtx, x, y);
+        targetCtx.drawImage(sourceCtx, 0 + offset, 0, this.width, this.height, x, y, this.width, this.height);
         this.oldAbsolutePosition = this.absolutePosition;
+        this.animationState = this.animationState < 200 ? this.animationState + 1 : 0;
     }
 }

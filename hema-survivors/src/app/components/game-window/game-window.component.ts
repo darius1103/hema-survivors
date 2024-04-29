@@ -65,9 +65,9 @@ export class GameWindowComponent {
 
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
-    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * FRAME_ONE[0].length;
+    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * FRAME_ONE[0].length * 2;
     this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * FRAME_ONE.length;
-    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * FRAME_ONE[0].length;;
+    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * FRAME_ONE[0].length * 2;
     this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * FRAME_ONE.length;;
 
     this.domContext = this.canvas.nativeElement.getContext("2d");
