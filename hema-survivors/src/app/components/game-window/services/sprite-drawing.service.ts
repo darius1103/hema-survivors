@@ -54,12 +54,21 @@ export class SpriteDrawingService {
     this.drawBodyPart(ctx, fighter.chest.waistAnchorPoint, fighter.waist);
     this.drawChest(ctx, fighter.chest);
     this.drawBodyPart(ctx, fighter.chest.headAnchorPoint, fighter.head);
-    fighter.arms.forEach((arm, index) => this.drawBodyPart(ctx, fighter.chest.handAnchorPoints[index], arm));
-    fighter.legs.forEach((arm, index) => {
+    fighter.arms.forEach((arm, index) => {
+      const weapon = arm.getWeapon();
+      if (weapon) {
+        const handRelativeToBody = new XYLocation(
+          arm.getWeaponAnchorPoints()[0].x + fighter.chest.armAnchorPoints[index].x, 
+          arm.getWeaponAnchorPoints()[0].y + fighter.chest.armAnchorPoints[index].y);
+        this.drawBodyPart(ctx, handRelativeToBody, weapon);
+      }
+      this.drawBodyPart(ctx, fighter.chest.armAnchorPoints[index], arm);
+    });
+    fighter.legs.forEach((leg, index) => {
       const waistRelativeToBody = new XYLocation(
         fighter.waist.legsAnchorPoints[index].x + fighter.chest.waistAnchorPoint.x, 
         fighter.waist.legsAnchorPoints[index].y + fighter.chest.waistAnchorPoint.y);
-      this.drawBodyPart(ctx, waistRelativeToBody, arm);
+      this.drawBodyPart(ctx, waistRelativeToBody, leg);
     });
   }
 

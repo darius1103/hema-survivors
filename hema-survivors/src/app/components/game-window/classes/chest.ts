@@ -5,7 +5,7 @@ import { XYLocation } from "./xylocation";
 
 export class Chest extends BodyPart {
     public headAnchorPoint: XYLocation = new XYLocation(0, 0);
-    public handAnchorPoints: XYLocation[] = [];
+    public armAnchorPoints: XYLocation[] = [];
     public waistAnchorPoint: XYLocation = new XYLocation(0, 0);
 
     constructor() {
@@ -36,7 +36,7 @@ export class Chest extends BodyPart {
         ];
         this.anchorPoints = [new XYLocation(10, 10)];
         this.headAnchorPoint = new XYLocation(-9, 2);
-        this.handAnchorPoints = [new XYLocation(-8, -6), new XYLocation(-7, 0)];
+        this.armAnchorPoints = [new XYLocation(-8, -6), new XYLocation(-7, 0)];
         this.waistAnchorPoint = new XYLocation(5, 1);
         const frame = new SpriteFrame(data);
         this.sprite =  new Sprite([frame]);

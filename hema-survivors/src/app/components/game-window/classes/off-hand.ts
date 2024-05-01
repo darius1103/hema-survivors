@@ -1,12 +1,13 @@
 import { Arm } from "./arm";
+import { Weapon } from "./main-weapon";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
 export class OffHand extends Arm {
 
-    constructor() {
-        super();
+    constructor(weapon: Weapon | null = null) {
+        super(weapon);
     }
 
     public override defineSprite(): void {
