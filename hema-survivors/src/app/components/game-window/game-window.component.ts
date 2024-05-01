@@ -10,6 +10,7 @@ import { Enemy } from './classes/enemy';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
 import { DEBUG_MODE, PIXEL_HEIGHT, toggleDebugMode } from './utils/globals';
 import { FRAME_ONE } from './utils/sprite-data';
+import { Fighter } from './classes/fighter';
 
 @Component({
   selector: 'app-game-window',
@@ -44,8 +45,8 @@ export class GameWindowComponent {
     this.player = new Player(this.innitialPlayerLocation);
     const playerObs = this.playerLocation$.asObservable();
     
-    this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
-    this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
+    // this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
+    // this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
 
@@ -65,8 +66,8 @@ export class GameWindowComponent {
 
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
-    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * FRAME_ONE[0].length * 2;
-    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * FRAME_ONE.length;
+    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * 64 * 2;
+    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * 64;
     this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * FRAME_ONE[0].length * 2;
     this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * FRAME_ONE.length;;
 
@@ -84,6 +85,8 @@ export class GameWindowComponent {
   }
 
   drawSpriteEnemy(): void {
+    const fighter = new Fighter();
+    this.spriteDrawing.drawFighter(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
     if (this.enemies.length <= 0) {
       return;
     }
