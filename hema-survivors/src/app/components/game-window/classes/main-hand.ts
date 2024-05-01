@@ -1,12 +1,15 @@
 import { Arm } from "./arm";
+import { Weapon } from "./main-weapon";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
 export class MainHand extends Arm {
+    private weapon: Weapon | null = null;
 
-    constructor() {
+    constructor(weapon: Weapon | null = null) {
         super();
+        this.weapon = weapon;
     }
 
     public override defineSprite(): void {

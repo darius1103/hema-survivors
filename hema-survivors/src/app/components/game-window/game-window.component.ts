@@ -8,7 +8,7 @@ import { ControlStatus } from './utils/control-status';
 import { XYLocation } from './classes/xylocation';
 import { Enemy } from './classes/enemy';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
-import { DEBUG_MODE, PIXEL_HEIGHT, toggleDebugMode } from './utils/globals';
+import { DEBUG_MODE, PIXEL_HEIGHT, SPRITE_HEIGHT, toggleDebugMode } from './utils/globals';
 import { FRAME_ONE } from './utils/sprite-data';
 import { Fighter } from './classes/fighter';
 
@@ -45,8 +45,8 @@ export class GameWindowComponent {
     this.player = new Player(this.innitialPlayerLocation);
     const playerObs = this.playerLocation$.asObservable();
     
-    // this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
-    // this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
+    this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
+    this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
 
@@ -66,10 +66,10 @@ export class GameWindowComponent {
 
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
-    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * 64 * 2;
-    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * 64;
-    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * FRAME_ONE[0].length * 2;
-    this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * FRAME_ONE.length;;
+    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * SPRITE_HEIGHT;
+    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_HEIGHT;
+    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * SPRITE_HEIGHT;
+    this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_HEIGHT;
 
     this.domContext = this.canvas.nativeElement.getContext("2d");
     this.startGame();
@@ -81,16 +81,16 @@ export class GameWindowComponent {
   }
 
   drawSpritePlayer(): void {
-    this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), this.player.getSprite());
+    const fighter = new Fighter();
+    this.spriteDrawing.drawFighter(this.heroCanvas.nativeElement.getContext("2d"), fighter);
   }
 
   drawSpriteEnemy(): void {
-    const fighter = new Fighter();
-    this.spriteDrawing.drawFighter(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
     if (this.enemies.length <= 0) {
       return;
     }
-    this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), this.enemies[0].getSprite());
+    const fighter = new Fighter();
+    this.spriteDrawing.drawFighter(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
   }
 
   handleInput(event: any, type: string): void {
@@ -151,7 +151,7 @@ export class GameWindowComponent {
   }
 
   private drawPlayer(): void {
-    this.player.draw(this.domContext, this.heroCanvas.nativeElement);
+    this.player.draw2(this.domContext, this.heroCanvas.nativeElement);
   }
 
   private drawBorders(): void {
@@ -159,7 +159,7 @@ export class GameWindowComponent {
   }
 
   private drawEnemies(): void {
-    this.enemies.forEach(enemy => enemy.draw(this.domContext, this.enemyCanvas.nativeElement));
+    this.enemies.forEach(enemy => enemy.draw2(this.domContext, this.enemyCanvas.nativeElement));
   }
 
   private moveEnemies(): void {

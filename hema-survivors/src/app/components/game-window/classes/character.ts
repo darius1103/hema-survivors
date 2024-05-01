@@ -85,11 +85,18 @@ export class Character {
     }
 
     public draw(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
-        const offset = this.animationState < 100 ? this.width : 1;
         const x = Math.round(this.absolutePosition.x - sourceCtx.width/2);
         const y = Math.round(this.absolutePosition.y - sourceCtx.height/2);
-        targetCtx.drawImage(sourceCtx, 0 + offset, 0, this.width, this.height, x, y, this.width, this.height);
+        targetCtx.drawImage(sourceCtx, 0, 0, this.width, this.height, x, y, this.width, this.height);
         this.oldAbsolutePosition = this.absolutePosition;
-        this.animationState = this.animationState < 200 ? this.animationState + 1 : 0;
+        // this.animationState = this.animationState < 200 ? this.animationState + 1 : 0;
+    }
+
+    public draw2(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
+        const x = Math.round(this.absolutePosition.x - sourceCtx.width/2);
+        const y = Math.round(this.absolutePosition.y - sourceCtx.height/2);
+        targetCtx.drawImage(sourceCtx, x, y, sourceCtx.width, sourceCtx.height);
+        this.oldAbsolutePosition = this.absolutePosition;
+        // this.animationState = this.animationState < 200 ? this.animationState + 1 : 0;
     }
 }
