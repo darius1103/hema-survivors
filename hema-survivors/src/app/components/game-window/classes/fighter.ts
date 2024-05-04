@@ -11,13 +11,20 @@ import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { Waist } from "./waist";
 import { XYLocation } from "./xylocation";
+import { FighterSettings } from "../utils/fitherSettings";
+import { Color } from "../utils/color";
 
 export class Fighter{
+    public settings: FighterSettings = {
+        primaryColor: Color.WHITE,
+        secondaryColor: Color.RED,
+        thirdColor: Color.AROS_GREEN
+    }
     public head: Head = new Head();
     public weapon: Weapon = new Weapon();
     public arms: Arm[] = [new MainHand(this.weapon), new OffHand()];
-    public torso: Torso = new Torso();
-    public waist: Waist = new Waist();
+    public torso: Torso = new Torso(this.settings);
+    public waist: Waist = new Waist(this.settings);
     public sprite: Sprite = null as any;
 
     constructor() {

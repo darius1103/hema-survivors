@@ -6,7 +6,7 @@ import { Fighter } from '../classes/fighter';
 import { Sprite } from '../classes/sprite';
 import { SpriteFrame } from '../classes/sprite-frame';
 import { XYLocation } from '../classes/xylocation';
-import { colorsTable } from '../utils/colorLookUp';
+import { codeToColor } from '../utils/colorLookUp';
 import { DEBUG_MODE, PIXEL_HEIGHT } from '../utils/globals';
 
 @Injectable({
@@ -29,7 +29,7 @@ export class SpriteDrawingService {
     for (let i: number = 0; i < frame.data.length; i++) {
       const frameRow = frame.data[i]
       for (let j: number = 0; j < frameRow.length; j++) {
-        if (!colorsTable.has(frameRow[j])) {
+        if (!codeToColor.has(frameRow[j])) {
             ctx.fillStyle = "rgba(233, 233, 233, 0)";
             continue;
         }
@@ -39,7 +39,7 @@ export class SpriteDrawingService {
         PIXEL_HEIGHT * i,
         PIXEL_HEIGHT,
         PIXEL_HEIGHT);
-        ctx.fillStyle = colorsTable.get(frameRow[j]) as any;
+        ctx.fillStyle = codeToColor.get(frameRow[j]) as any;
         ctx.fill();
       }
     }
@@ -55,7 +55,7 @@ export class SpriteDrawingService {
     frame.data.forEach((row: number[], rowIndex: number) => {
       row.forEach((value: number, columnIndex: number) => {
           ctx.font = value ? "12px Arial" : "4px Arial";
-          ctx.fillStyle = colorsTable.get(frame.data[rowIndex][columnIndex]) ? colorsTable.get(frame.data[rowIndex][columnIndex]) as any : "black";
+          ctx.fillStyle = codeToColor.get(frame.data[rowIndex][columnIndex]) ? codeToColor.get(frame.data[rowIndex][columnIndex]) as any : "black";
           ctx.fillText(value.toString(), 10 * (columnIndex + 1), 10 * (rowIndex + 1));
       });
     });
@@ -109,8 +109,8 @@ export class SpriteDrawingService {
           (adjustX >= 0 && adjustX < frameHeight) &&
           (adjustY >= 0 && adjustY < frameWidth) 
         ) {
-          if (colorsTable.has(torsoFrame.data[adjustX][adjustY])) {
-            ctx.fillStyle = colorsTable.get(torsoFrame.data[i + torsoAnchor.y - center][j + torsoAnchor.x - center]) as any;
+          if (codeToColor.has(torsoFrame.data[adjustX][adjustY])) {
+            ctx.fillStyle = codeToColor.get(torsoFrame.data[i + torsoAnchor.y - center][j + torsoAnchor.x - center]) as any;
             ctx.fill();
           }
         }
@@ -153,8 +153,8 @@ export class SpriteDrawingService {
                 console.log(partAnchor);
                 console.log(torsoAnchorPoint);
           }
-          if (colorsTable.has(partFrame.data[adjustX][adjustY])) {
-            ctx.fillStyle = colorsTable.get(partFrame.data[adjustX][adjustY]) as any;
+          if (codeToColor.has(partFrame.data[adjustX][adjustY])) {
+            ctx.fillStyle = codeToColor.get(partFrame.data[adjustX][adjustY]) as any;
             ctx.fill();
           }
         }
