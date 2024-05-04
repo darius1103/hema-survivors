@@ -12,3 +12,4 @@ colorsTable.set(9, Color.DARK_GREY);
 colorsTable.set(10, Color.BLUE);
 colorsTable.set(5, Color.AROS_GREEN);
 colorsTable.set(11, Color.LIGHT_BLUE);
+colorsTable.set(12, Color.WHITE);

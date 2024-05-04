@@ -34,7 +34,7 @@ export class Waist extends BodyPart {
                 index: 0, 
                 under: true});
             });
-        this.anchorPoints = [new XYLocation(1, 9)];
+        this.anchorPoints = [new XYLocation(1, data[0].length / 2 )];
         const frame = new SpriteFrame(data);
         this.sprite =  new Sprite([frame]);
     }

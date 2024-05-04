@@ -11,23 +11,27 @@ export class Arm extends BodyPart {
     protected gloveAnchor: XYLocation = null as any;
     protected gloveOverlay: number[][] = null as any;
 
-    protected sleave: boolean = true;
+    protected sleave: boolean = false;
     protected sleaveAnchor: XYLocation = null as any;
     protected sleaveOverlay: number[][] = null as any;
 
-    protected albowProtection: boolean = true;
+    protected albowProtection: boolean = false;
     protected albowAnchor: XYLocation = null as any;
     protected albowOverlay: number[][] = null as any;
 
-    protected guard: boolean = true;
+    protected guard: boolean = false;
     protected guardAnchor: XYLocation = null as any;
     protected guardOverlay: number[][] = null as any;
 
     protected weapon: Weapon | null = null;
-    protected data: number[][] =  null as any;
     
     constructor(weapon: Weapon | null = null) {
         super();
+        // this.gloves = Math.floor(Math.random() * 100) % 2 == 0;
+        // this.sleave = Math.floor(Math.random() * 100) % 2 == 0;
+        // this.albowProtection = Math.floor(Math.random() * 100) % 2 == 0;
+        // this.guard = Math.floor(Math.random() * 100) % 2 == 0;
+        
         this.weapon = weapon;
         this.instanciate();
         this.defineSprite();

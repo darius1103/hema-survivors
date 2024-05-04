@@ -1,4 +1,4 @@
-export const PIXEL_HEIGHT = 6;
+export const PIXEL_HEIGHT = 2;
 export const SPRITE_SIZE = 64;
 export var DEBUG_MODE = false;
 export function toggleDebugMode(): void {

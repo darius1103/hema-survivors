@@ -2,7 +2,7 @@ import { range } from "rxjs";
 import { SPRITE_SIZE } from "../utils/globals";
 import { Arm } from "./arm";
 import { BodyPart } from "./body-part";
-import { Chest } from "./chest";
+import { Torso } from "./torso";
 import { Head } from "./head";
 import { MainHand } from "./main-hand";
 import { Weapon } from "./main-weapon";
@@ -16,7 +16,7 @@ export class Fighter{
     public head: Head = new Head();
     public weapon: Weapon = new Weapon();
     public arms: Arm[] = [new MainHand(this.weapon), new OffHand()];
-    public chest: Chest = new Chest();
+    public torso: Torso = new Torso();
     public waist: Waist = new Waist();
     public sprite: Sprite = null as any;
 
@@ -30,24 +30,24 @@ export class Fighter{
         frameData = this.appendBodyPart(
             frameData, 
             this.waist, 
-            this.relativeToChest(this.chest.waistAnchorPoint, 0), 
+            this.relativeToChest(this.torso.waistAnchorPoint, 0), 
             0);
         frameData = this.appendBodyPart(
             frameData, 
-            this.chest, 
+            this.torso, 
             new XYLocation(0, 0),
             0);
         frameData = this.appendBodyPart(
             frameData,
             this.head,
-            this.relativeToChest(this.chest.headAnchorPoint, 0),
+            this.relativeToChest(this.torso.headAnchorPoint, 0),
             0
         );
         this.arms.forEach((arm: Arm, index: number) => {
             frameData = this.appendBodyPart(
                 frameData,
                 arm,
-                this.relativeToChest(this.chest.armAnchorPoints[index], 0),
+                this.relativeToChest(this.torso.armAnchorPoints[index], 0),
                 0
             );
         });
@@ -78,7 +78,7 @@ export class Fighter{
 
     private relativeToChest(partAnchor: XYLocation, index: number): XYLocation {
         return new XYLocation(
-            partAnchor.x - this.chest.getAnchorPoints()[index].x,
-            partAnchor.y - this.chest.getAnchorPoints()[index].y);
+            partAnchor.x - this.torso.getAnchorPoints()[index].x,
+            partAnchor.y - this.torso.getAnchorPoints()[index].y);
     }
 }

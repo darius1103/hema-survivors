@@ -4,6 +4,7 @@ import { Sprite } from "./sprite";
 import { XYLocation } from "./xylocation";
 
 export class BodyPart {
+    protected data: number[][] =  null as any;
     protected sprite: Sprite = new Sprite([]);
     protected anchorPoints: XYLocation[] = [];
 

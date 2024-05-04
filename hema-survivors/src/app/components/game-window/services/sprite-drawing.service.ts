@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { first } from 'rxjs';
 import { BodyPart } from '../classes/body-part';
-import { Chest } from '../classes/chest';
+import { Torso } from '../classes/torso';
 import { Fighter } from '../classes/fighter';
 import { Sprite } from '../classes/sprite';
 import { SpriteFrame } from '../classes/sprite-frame';
@@ -62,37 +62,37 @@ export class SpriteDrawingService {
   }
 
   public drawFighter(ctx:CanvasRenderingContext2D, fighter: Fighter): void {
-    this.drawBodyPart(ctx, fighter.chest.waistAnchorPoint, fighter.waist);
-    this.drawChest(ctx, fighter.chest);
-    this.drawBodyPart(ctx, fighter.chest.headAnchorPoint, fighter.head);
+    this.drawBodyPart(ctx, fighter.torso.waistAnchorPoint, fighter.waist);
+    this.drawChest(ctx, fighter.torso);
+    this.drawBodyPart(ctx, fighter.torso.headAnchorPoint, fighter.head);
     fighter.arms.forEach((arm, index) => {
       const weapon = arm.getWeapon();
       if (weapon) {
         const handRelativeToBody = new XYLocation(
-          arm.getWeaponAnchorPoints()[0].x + fighter.chest.armAnchorPoints[index].x, 
-          arm.getWeaponAnchorPoints()[0].y + fighter.chest.armAnchorPoints[index].y);
+          arm.getWeaponAnchorPoints()[0].x + fighter.torso.armAnchorPoints[index].x, 
+          arm.getWeaponAnchorPoints()[0].y + fighter.torso.armAnchorPoints[index].y);
         this.drawBodyPart(ctx, handRelativeToBody, weapon);
       }
-      this.drawBodyPart(ctx, fighter.chest.armAnchorPoints[index], arm);
+      this.drawBodyPart(ctx, fighter.torso.armAnchorPoints[index], arm);
     });
     // fighter.legs.forEach((leg, index) => {
     //   const waistRelativeToBody = new XYLocation(
-    //     fighter.waist.legsAnchorPoints[index].x + fighter.chest.waistAnchorPoint.x, 
-    //     fighter.waist.legsAnchorPoints[index].y + fighter.chest.waistAnchorPoint.y);
+    //     fighter.waist.legsAnchorPoints[index].x + fighter.torso.waistAnchorPoint.x, 
+    //     fighter.waist.legsAnchorPoints[index].y + fighter.torso.waistAnchorPoint.y);
     //   this.drawBodyPart(ctx, waistRelativeToBody, leg);
     // });
   }
 
-  public drawChest(ctx:CanvasRenderingContext2D, chest: Chest): void {
+  public drawChest(ctx:CanvasRenderingContext2D, torso: Torso): void {
     const index = 0;
     const spriteSize = 64;
     const center = spriteSize / 2;
 
-    const chestFrame = chest.getSprite().frames[index];
-    const chestAnchor = chest.getAnchorPoints()[index];
+    const torsoFrame = torso.getSprite().frames[index];
+    const torsoAnchor = torso.getAnchorPoints()[index];
 
-    const frameHeight = chestFrame.data.length;
-    const frameWidth = chestFrame.data[0].length;
+    const frameHeight = torsoFrame.data.length;
+    const frameWidth = torsoFrame.data[0].length;
 
     for (let i: number = 0; i < spriteSize; i++) {
       for (let j: number = 0; j < spriteSize; j++) {
@@ -103,14 +103,14 @@ export class SpriteDrawingService {
         PIXEL_HEIGHT,
         PIXEL_HEIGHT);
         ctx.fillStyle = "yellow";
-        const adjustX = (i + chestAnchor.y - center);
-        const adjustY = (j + chestAnchor.x - center);
+        const adjustX = (i + torsoAnchor.y - center);
+        const adjustY = (j + torsoAnchor.x - center);
         if (
           (adjustX >= 0 && adjustX < frameHeight) &&
           (adjustY >= 0 && adjustY < frameWidth) 
         ) {
-          if (colorsTable.has(chestFrame.data[adjustX][adjustY])) {
-            ctx.fillStyle = colorsTable.get(chestFrame.data[i + chestAnchor.y - center][j + chestAnchor.x - center]) as any;
+          if (colorsTable.has(torsoFrame.data[adjustX][adjustY])) {
+            ctx.fillStyle = colorsTable.get(torsoFrame.data[i + torsoAnchor.y - center][j + torsoAnchor.x - center]) as any;
             ctx.fill();
           }
         }
@@ -118,15 +118,15 @@ export class SpriteDrawingService {
     }
   }
 
-  public drawBodyPart(ctx: CanvasRenderingContext2D, chestAnchorPoint: XYLocation, part: BodyPart) {
+  public drawBodyPart(ctx: CanvasRenderingContext2D, torsoAnchorPoint: XYLocation, part: BodyPart) {
     const index = 0;
     const spriteSize = 64;
     const center = spriteSize / 2;
 
     const partFrame = part.getSprite().frames[index];
     const partAnchor = new XYLocation(
-      part.getAnchorPoints()[index].x - chestAnchorPoint.x, 
-      part.getAnchorPoints()[index].y - chestAnchorPoint.y);
+      part.getAnchorPoints()[index].x - torsoAnchorPoint.x, 
+      part.getAnchorPoints()[index].y - torsoAnchorPoint.y);
 
     const frameHeight = partFrame.data.length;
     const frameWidth = partFrame.data[0].length;
@@ -151,7 +151,7 @@ export class SpriteDrawingService {
                 console.log(i);
                 console.log(j);
                 console.log(partAnchor);
-                console.log(chestAnchorPoint);
+                console.log(torsoAnchorPoint);
           }
           if (colorsTable.has(partFrame.data[adjustX][adjustY])) {
             ctx.fillStyle = colorsTable.get(partFrame.data[adjustX][adjustY]) as any;
