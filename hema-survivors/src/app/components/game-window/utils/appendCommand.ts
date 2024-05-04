@@ -1,10 +1,10 @@
-import { BodyPart } from "../classes/body-part";
 import { XYLocation } from "../classes/xylocation";
 
 export interface AppendCommand {
-    frameData: number[][], 
-    bodyPart: BodyPart, 
+    targetFrameData: number[][], 
+    sourceFrameData: number[][],
     anchorPoint: XYLocation,
+    innerAnchorPoint: XYLocation, 
     index: number,
     under: boolean,
 }

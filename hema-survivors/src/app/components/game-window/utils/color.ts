@@ -8,5 +8,6 @@ export enum Color  {
     WHITE = 'white',
     BROWN = '#DEB887',
     DARK_GREY = '#A9A9A9',
-    LIGHT_SKIN = '#fbe5ba'
+    LIGHT_SKIN = '#fbe5ba',
+    AROS_GREEN = '#2b6437',
   }

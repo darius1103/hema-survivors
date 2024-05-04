@@ -1,7 +1,5 @@
 import { Arm } from "./arm";
 import { Weapon } from "./main-weapon";
-import { Sprite } from "./sprite";
-import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
 export class OffHand extends Arm {
@@ -10,19 +8,49 @@ export class OffHand extends Arm {
         super(weapon);
     }
 
-    public override defineSprite(): void {
-        const data = [
+    public override instanciate(): void {
+        this.data = [
             [0,0,0,0,0,0,0,0,7,7,0,0],
             [0,0,0,0,0,0,0,0,7,7,7,0],
             [0,0,0,0,0,0,0,0,7,7,7,2],
             [0,0,0,0,0,0,0,7,7,7,7,2],
             [7,7,7,7,0,0,2,7,7,7,7,2],
             [7,7,7,7,7,7,7,7,7,7,0,0],
-            [0,0,7,7,7,7,7,7,7,0,0,0],
+            [0,0,0,7,7,7,7,7,7,0,0,0],
             [0,0,0,7,7,7,7,2,0,0,0,0],
         ];
         this.anchorPoints = [new XYLocation(0, 9)];
-        const frame = new SpriteFrame(data);
-        this.sprite =  new Sprite([frame]);
+        this.gloveAnchor = new XYLocation(4, 0);
+        this.gloveOverlay = [
+            [2,2,2,2,0],
+            [2,2,2,2,2],
+            [0,0,2,2,2],
+            [0,0,0,2,2]
+        ];
+        this.sleaveAnchor = new XYLocation(0, 0);
+        this.sleaveOverlay = [
+            [0,0,0,0,0,0,2,5,5,5,0,0],
+            [0,0,0,0,0,0,0,2,5,5,5,0],
+            [0,0,0,0,0,0,0,2,5,5,5,2],
+            [0,0,0,0,0,0,0,5,5,5,5,2],
+            [7,7,7,7,0,2,2,5,5,5,5,2],
+            [7,7,7,7,5,5,5,5,5,5,2,0],
+            [0,0,0,5,5,5,5,5,5,2,0,0],
+            [0,0,0,2,5,5,5,2,0,0,0,0],
+            [0,0,0,0,2,2,2,2,0,0,0,0],
+        ];
+        this.albowAnchor = new XYLocation(5, 6);
+        this.albowOverlay = [
+            [2,2,2,0],
+            [2,2,2,2],
+            [2,2,2,0],
+        ];
+        this.guardAnchor = new XYLocation(5, 3);
+        this.guardOverlay = [
+            [0,2,2,2,2,0,0,0,0],
+            [0,2,2,2,2,0,0,0,0],
+            [0,2,2,2,2,2,0,0,0],
+            [0,2,2,2,2,0,0,0,0],
+        ];
     }
 }
