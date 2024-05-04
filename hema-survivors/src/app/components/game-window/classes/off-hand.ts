@@ -21,7 +21,7 @@ export class OffHand extends Arm {
             [0,0,7,7,7,7,7,7,7,0,0,0],
             [0,0,0,7,7,7,7,2,0,0,0,0],
         ];
-        this.anchorPoints = [new XYLocation(0, 0)];
+        this.anchorPoints = [new XYLocation(0, 9)];
         const frame = new SpriteFrame(data);
         this.sprite =  new Sprite([frame]);
     }

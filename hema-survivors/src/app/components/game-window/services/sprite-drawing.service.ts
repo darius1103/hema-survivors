@@ -17,6 +17,7 @@ export class SpriteDrawingService {
   constructor() { }
 
   public draw(ctx: CanvasRenderingContext2D, sprite: Sprite): void {
+    console.log(sprite);
     for (let i = 0; i < sprite.frames.length; i++) {
       this.drawFrame(ctx, sprite.frames[i], i);   
     }
@@ -50,6 +51,16 @@ export class SpriteDrawingService {
     }
   }
 
+  public writeFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame, offset: number = 0): void {
+    frame.data.forEach((row: number[], rowIndex: number) => {
+      row.forEach((value: number, columnIndex: number) => {
+          ctx.font = value ? "12px Arial" : "4px Arial";
+          ctx.fillStyle = colorsTable.get(frame.data[rowIndex][columnIndex]) ? colorsTable.get(frame.data[rowIndex][columnIndex]) as any : "black";
+          ctx.fillText(value.toString(), 10 * (columnIndex + 1), 10 * (rowIndex + 1));
+      });
+    });
+  }
+
   public drawFighter(ctx:CanvasRenderingContext2D, fighter: Fighter): void {
     this.drawBodyPart(ctx, fighter.chest.waistAnchorPoint, fighter.waist);
     this.drawChest(ctx, fighter.chest);
@@ -64,12 +75,12 @@ export class SpriteDrawingService {
       }
       this.drawBodyPart(ctx, fighter.chest.armAnchorPoints[index], arm);
     });
-    fighter.legs.forEach((leg, index) => {
-      const waistRelativeToBody = new XYLocation(
-        fighter.waist.legsAnchorPoints[index].x + fighter.chest.waistAnchorPoint.x, 
-        fighter.waist.legsAnchorPoints[index].y + fighter.chest.waistAnchorPoint.y);
-      this.drawBodyPart(ctx, waistRelativeToBody, leg);
-    });
+    // fighter.legs.forEach((leg, index) => {
+    //   const waistRelativeToBody = new XYLocation(
+    //     fighter.waist.legsAnchorPoints[index].x + fighter.chest.waistAnchorPoint.x, 
+    //     fighter.waist.legsAnchorPoints[index].y + fighter.chest.waistAnchorPoint.y);
+    //   this.drawBodyPart(ctx, waistRelativeToBody, leg);
+    // });
   }
 
   public drawChest(ctx:CanvasRenderingContext2D, chest: Chest): void {

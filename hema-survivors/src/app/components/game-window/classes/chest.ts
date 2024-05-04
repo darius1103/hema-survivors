@@ -14,6 +14,14 @@ export class Chest extends BodyPart {
     }
 
     public defineSprite(): void {
+        // const data = [
+        //     [4,4,4,4,4,4,4],
+        //     [5,5,5,5,5,5,5],
+        //     [6,6,6,6,6,6,6],
+        //     [7,7,7,7,7,7,7],
+        //     [6,6,6,6,6,6,6],
+        //     [6,6,6,6,6,6,6],
+        // ];
         const data = [
             [0,0,0,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0],
             [0,0,2,4,4,5,5,5,5,4,4,5,2,0,0,0,0,0,0],
@@ -35,9 +43,11 @@ export class Chest extends BodyPart {
             [0,0,0,0,0,2,2,2,2,0,0,2,2,0,0,0,0,0,0],
         ];
         this.anchorPoints = [new XYLocation(10, 10)];
-        this.headAnchorPoint = new XYLocation(-9, 2);
-        this.armAnchorPoints = [new XYLocation(-8, -6), new XYLocation(-7, 0)];
-        this.waistAnchorPoint = new XYLocation(5, 1);
+        // this.anchorPoints = [new XYLocation(3, 3)];
+        this.headAnchorPoint = new XYLocation(1, 11);
+        this.armAnchorPoints = [new XYLocation(3, 3), new XYLocation(4, 18)];
+        this.waistAnchorPoint = new XYLocation(16, 9);
+        // this.waistAnchorPoint = new XYLocation(5, 3);
         const frame = new SpriteFrame(data);
         this.sprite =  new Sprite([frame]);
     }

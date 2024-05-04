@@ -1,4 +1,4 @@
-import { Leg } from "./Leg";
+import { Leg } from "./leg";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";

@@ -8,8 +8,7 @@ import { ControlStatus } from './utils/control-status';
 import { XYLocation } from './classes/xylocation';
 import { Enemy } from './classes/enemy';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
-import { DEBUG_MODE, PIXEL_HEIGHT, SPRITE_HEIGHT, toggleDebugMode } from './utils/globals';
-import { FRAME_ONE } from './utils/sprite-data';
+import { DEBUG_MODE, PIXEL_HEIGHT, SPRITE_SIZE, toggleDebugMode } from './utils/globals';
 import { Fighter } from './classes/fighter';
 
 @Component({
@@ -22,6 +21,7 @@ export class GameWindowComponent {
   @ViewChild('canvas') canvas: any = null;
   @ViewChild('heroCanvas') heroCanvas: any = null;
   @ViewChild('enemyCanvas') enemyCanvas: any = null;
+  @ViewChild('debug') debugCanvas: any = null;
   private WIDTH = 500;
   private HEIGHT = 500;
   private DEBUG = false;
@@ -66,10 +66,12 @@ export class GameWindowComponent {
 
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
-    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * SPRITE_HEIGHT;
-    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_HEIGHT;
-    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * SPRITE_HEIGHT;
-    this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_HEIGHT;
+    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * SPRITE_SIZE;
+    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_SIZE;
+    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * SPRITE_SIZE;
+    this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_SIZE;
+    this.debugCanvas.nativeElement.width =  14 * SPRITE_SIZE;
+    this.debugCanvas.nativeElement.height = 14 * SPRITE_SIZE;
 
     this.domContext = this.canvas.nativeElement.getContext("2d");
     this.startGame();
@@ -82,7 +84,8 @@ export class GameWindowComponent {
 
   drawSpritePlayer(): void {
     const fighter = new Fighter();
-    this.spriteDrawing.drawFighter(this.heroCanvas.nativeElement.getContext("2d"), fighter);
+    this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), fighter.getSprite());
+    this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), fighter.getSprite().frames[0], 0);
   }
 
   drawSpriteEnemy(): void {
@@ -90,7 +93,7 @@ export class GameWindowComponent {
       return;
     }
     const fighter = new Fighter();
-    this.spriteDrawing.drawFighter(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
+    this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), fighter.getSprite());
   }
 
   handleInput(event: any, type: string): void {
