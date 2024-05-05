@@ -28,6 +28,14 @@ export class Character {
     public getFighter(): Fighter {
         return this.figther;
     }
+
+    public getAbsolutePositon(): XYLocation {
+        return this.absolutePosition;
+    }
+
+    public getOldPositon(): XYLocation {
+        return this.oldAbsolutePosition;
+    }
     
     private defineSprinte(): void {
         this.sprite = new Sprite([new SpriteFrame(FRAME_ONE), new SpriteFrame(FRAME_TWO)]);
@@ -94,16 +102,8 @@ export class Character {
     public draw(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
         const x = Math.round(this.absolutePosition.x - sourceCtx.width/2);
         const y = Math.round(this.absolutePosition.y - sourceCtx.height/2);
-        targetCtx.drawImage(sourceCtx, 0, 0, this.width, this.height, x, y, this.width, this.height);
-        this.oldAbsolutePosition = this.absolutePosition;
-        // this.animationState = this.animationState < 200 ? this.animationState + 1 : 0;
-    }
-
-    public draw2(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
-        const x = Math.round(this.absolutePosition.x - sourceCtx.width/2);
-        const y = Math.round(this.absolutePosition.y - sourceCtx.height/2);
         targetCtx.drawImage(sourceCtx, x, y, sourceCtx.width, sourceCtx.height);
-        this.oldAbsolutePosition = this.absolutePosition;
-        // this.animationState = this.animationState < 200 ? this.animationState + 1 : 0;
+        this.oldAbsolutePosition.x = this.absolutePosition.x;
+        this.oldAbsolutePosition.y = this.absolutePosition.y;
     }
 }

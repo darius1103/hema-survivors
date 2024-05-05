@@ -24,7 +24,7 @@ export class GameWindowComponent {
   @ViewChild('debug') debugCanvas: any = null;
   private WIDTH = 500;
   private HEIGHT = 500;
-  private DEBUG = false;
+  private DEBUG = true;
   private domContext: CanvasRenderingContext2D = null as any;
   private delay = 0; // 120 is about 1 frame per second :)
   private currentFrame = 0;
@@ -40,6 +40,7 @@ export class GameWindowComponent {
   private requireTranslation: XYLocation = new XYLocation(0,0);
   private lastEnemySpawnTime = 0;
   private enemySpawnDelay = 2000;
+  private hitAreas: Map<string, Map<string, Enemy>> = new Map<string, Map<string, Enemy>>();
 
   constructor (private spriteDrawing: SpriteDrawingService) {
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
@@ -153,7 +154,7 @@ export class GameWindowComponent {
   }
 
   private drawPlayer(): void {
-    this.player.draw2(this.domContext, this.heroCanvas.nativeElement);
+    this.player.draw(this.domContext, this.heroCanvas.nativeElement);
   }
 
   private drawBorders(): void {
@@ -161,13 +162,14 @@ export class GameWindowComponent {
   }
 
   private drawEnemies(): void {
-    this.enemies.forEach(enemy => enemy.draw2(this.domContext, this.enemyCanvas.nativeElement));
+    this.enemies.forEach(enemy => enemy.draw(this.domContext, this.enemyCanvas.nativeElement));
   }
 
   private moveEnemies(): void {
     this.enemies.forEach((enemy)=> {
       enemy.move(this.topLeftCorner, this.bottomRightCorner);
     });
+    this.adjustHitAreas();
   }
 
   private playerAttack(): void {
@@ -176,22 +178,55 @@ export class GameWindowComponent {
   }
 
   private spawnEnemy(): void {
-    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length > 10) {
-      console.log("Not spawing...");
+    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length > 1) {
       return;
     }
     this.lastEnemySpawnTime = Date.now();
-    console.log("Spawing...");
-    console.log("Player Current Position");
+
     const playerLocation = this.playerLocation$.getValue();
-    console.log(playerLocation);
     const modifier1 = this.getRandomInt(2) === 0? -1 : 1;
     const modifier2 = this.getRandomInt(2) === 0? -1 : 1;
-    const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2}
-    this.enemies.push(
-      new Enemy(enemyLocation, 
+    const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2};
+    const enemyId = this.lastEnemySpawnTime + "-" + this.getRandomInt(100);
+
+    const enemy = new Enemy(
+      enemyLocation, 
       this.playerLocation$.asObservable(), 
-      new Fighter()));
+      new Fighter(), 
+      enemyId);
+    this.enemies.push(enemy);
+  }
+
+  private adjustHitAreas(): void {
+    this.enemies.forEach((enemy: Enemy) => {
+      const enemyId = enemy.getId();
+      const enemyLocation = enemy.getAbsolutePositon();
+      const enemyOldLocation = enemy.getOldPositon();
+      const areaNewId = Math.floor(enemyLocation.x / 50) + "-" + Math.floor(enemyLocation.y / 50);
+      const areaOldId = Math.floor(enemyOldLocation.x / 50) + "-" + Math.floor(enemyOldLocation.y / 50);
+      console.log(areaNewId);
+      console.log(areaOldId);
+      if (areaNewId == areaOldId && this.hitAreas.size > 0) {
+        return;
+      }
+      console.log("changed")
+      // Clean old
+      if (this.hitAreas.has(areaOldId)) {
+        const hitArea = this.hitAreas.get(areaOldId);
+        hitArea?.delete(enemyId);
+        if (hitArea?.size == 0) {
+          this.hitAreas.delete(areaOldId);
+        }
+      }
+  
+      // Adjust new 
+      if (!this.hitAreas.has(areaNewId)) {
+        this.hitAreas.set(areaNewId, new Map<string, Enemy>());
+      }
+      const areaMap = this.hitAreas.get(areaNewId);
+      areaMap?.set(enemyId, enemy);
+    });
+    console.log(this.hitAreas.size);
   }
 
   private getRandomInt(max: number): number {
