@@ -1,4 +1,4 @@
-import { max, range } from "rxjs";
+import { range } from "rxjs";
 import { SPRITE_SIZE } from "../utils/globals";
 import { Arm } from "./arm";
 import { BodyPart } from "./body-part";
@@ -42,9 +42,7 @@ export class Fighter{
             return;
         }
         this.lastAttack = Date.now();
-        console.log("attacking");
         const ids = this.determineAttackRange(ownLocation);
-        console.log(ids);
         const enemiesInRange = ids
          .filter(id => hitAreas.has(id))
          .map(id => hitAreas.get(id))
@@ -55,12 +53,13 @@ export class Fighter{
             return;
         }
         console.log("Enemies in range: " + enemiesInRange.length);
-        enemiesInRange.forEach((enemy: any) => (enemy as Enemy).attemptAttack(this.attackBox, 2));
+        enemiesInRange
+            .forEach((enemy: any) => (enemy as Enemy)
+                .attemptAttack(this.mapBoxesToAbsolute(this.attackBox, ownLocation), 2));
     }
 
-    public attemptAttack(attackBoxes: Box[], damage: number): boolean {
-        console.log("Getting attacked");
-        return this.hitBoxes
+    public attemptAttack(attackBoxes: Box[], damage: number, location: XYLocation): boolean {
+        return this.mapBoxesToAbsolute(this.hitBoxes, location)
             .some((box) => this.checkColision(box, attackBoxes));
     }
 
@@ -74,6 +73,18 @@ export class Fighter{
 
             return true;
         });
+    }
+
+    private mapBoxesToAbsolute(boxes: Box[], location: XYLocation): Box[] {
+        return boxes.map(box => this.mapBoxToAbsolute(box, location));
+    }
+
+    private mapBoxToAbsolute(box: Box, location: XYLocation): Box {
+        const x1 = location.x - (SPRITE_SIZE / 2) + box.topL.x;
+        const y1 = location.y - (SPRITE_SIZE / 2) + box.topL.y;
+        const x2 = location.x - (SPRITE_SIZE / 2) + box.bottomR.x;
+        const y2 = location.y - (SPRITE_SIZE / 2) + box.bottomR.y;
+        return {topL: new XYLocation(x1 ,y1), bottomR: new XYLocation(x2 ,y2)};
     }
 
     private determineAttackRange(ownLocation: XYLocation): string[] {
@@ -139,22 +150,22 @@ export class Fighter{
         const center = SPRITE_SIZE / 2;
         const deviationX = center + anchorPoint.x - bodyPartAnchor.x;
         const deviationY = center + anchorPoint.y - bodyPartAnchor.y;
-        const topL = new XYLocation(deviationX, deviationY);
-        let bottomR = new XYLocation(deviationX, deviationY);
-        let maxX = deviationX;
-        let maxY = deviationY;
+        let maxX = -999;
+        let maxY = -999;
 
         bodyPartFrame.data.forEach((row: number[], rowIndex: number) => {
             frameData[rowIndex + deviationX] = frameData[rowIndex + deviationX] ? frameData[rowIndex + deviationX] : [];
             row.forEach((value: number, columnIndex: number) => {
                 if (value) {
                     frameData[rowIndex + deviationX][columnIndex + deviationY] = value;
-                    maxX = Math.max(maxX , rowIndex + deviationX + 1);
-                    maxY = Math.max(maxY , columnIndex + deviationY + 1);
-                    bottomR = new XYLocation(maxX, maxY);
+                    maxX = Math.max(maxX , columnIndex + deviationY + 1);
+                    maxY = Math.max(maxY , rowIndex + deviationX + 1);
+                    console.log({maxY, maxX});
                 }
             });
         });
+        const topL = new XYLocation(deviationY, deviationX);
+        const bottomR = new XYLocation(maxX, maxY);
         this.hitBoxes.push({topL, bottomR});
         return frameData;
     }

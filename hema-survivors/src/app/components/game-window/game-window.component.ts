@@ -24,7 +24,7 @@ export class GameWindowComponent {
   @ViewChild('debug') debugCanvas: any = null;
   private WIDTH = 500;
   private HEIGHT = 500;
-  private DEBUG = true;
+  private DEBUG = false;
   private domContext: CanvasRenderingContext2D = null as any;
   private delay = 0; // 120 is about 1 frame per second :)
   private currentFrame = 0;
@@ -36,7 +36,7 @@ export class GameWindowComponent {
   private playerLocation$: BehaviorSubject<XYLocation>;
   private topLeftCorner: XYLocation = new XYLocation(-this.HEIGHT, -this.WIDTH);
   private bottomRightCorner: XYLocation = new XYLocation(this.HEIGHT, this.WIDTH);
-  private innitialPlayerLocation = {x: this.HEIGHT/2, y: this.WIDTH/2};
+  private innitialPlayerLocation = {x: 0, y: 0};
   private requireTranslation: XYLocation = new XYLocation(0,0);
   private lastEnemySpawnTime = 0;
   private enemySpawnDelay = 2000;
@@ -74,6 +74,7 @@ export class GameWindowComponent {
     this.debugCanvas.nativeElement.height = 14 * SPRITE_SIZE;
 
     this.domContext = this.canvas.nativeElement.getContext("2d");
+    this.domContext.translate(this.HEIGHT / 2, this.WIDTH / 2);
     this.startGame();
   }
 
@@ -166,9 +167,9 @@ export class GameWindowComponent {
   }
 
   private moveEnemies(): void {
-    this.enemies.forEach((enemy)=> {
-      enemy.move(this.topLeftCorner, this.bottomRightCorner);
-    });
+    // this.enemies.forEach((enemy)=> {
+    //   enemy.move(this.topLeftCorner, this.bottomRightCorner);
+    // });
     this.adjustHitAreas();
   }
 
@@ -178,7 +179,7 @@ export class GameWindowComponent {
   }
 
   private spawnEnemy(): void {
-    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length > 1) {
+    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length >= 1) {
       return;
     }
     this.lastEnemySpawnTime = Date.now();
@@ -186,7 +187,8 @@ export class GameWindowComponent {
     const playerLocation = this.playerLocation$.getValue();
     const modifier1 = this.getRandomInt(2) === 0? -1 : 1;
     const modifier2 = this.getRandomInt(2) === 0? -1 : 1;
-    const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2};
+    // const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2};
+    const enemyLocation = {x: 0, y: 0};
     const enemyId = this.lastEnemySpawnTime + "-" + this.getRandomInt(100);
 
     const enemy = new Enemy(

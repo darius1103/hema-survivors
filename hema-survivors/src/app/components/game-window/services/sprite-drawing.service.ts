@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Fighter } from '../classes/fighter';
-import { Sprite } from '../classes/sprite';
 import { SpriteFrame } from '../classes/sprite-frame';
-import { XYLocation } from '../classes/xylocation';
 import { codeToColor } from '../utils/colorLookUp';
 import { DEBUG_MODE, PIXEL_HEIGHT } from '../utils/globals';
 
@@ -33,8 +31,8 @@ export class SpriteDrawingService {
         }
         ctx.beginPath();
         ctx.rect(
-        PIXEL_HEIGHT * j + offset * frameWidth,
-        PIXEL_HEIGHT * i,
+        PIXEL_HEIGHT * j,
+        PIXEL_HEIGHT * i + offset * frameWidth,
         PIXEL_HEIGHT,
         PIXEL_HEIGHT);
         ctx.fillStyle = codeToColor.get(frameRow[j]) as any;
@@ -64,10 +62,10 @@ export class SpriteDrawingService {
     boxes.forEach((box) => {
       ctx.lineWidth = 1;
       ctx.strokeRect(
-          PIXEL_HEIGHT * box.topL.y, 
-          PIXEL_HEIGHT * box.topL.x, 
-          PIXEL_HEIGHT * (box.bottomR.y - box.topL.y),
-          PIXEL_HEIGHT * (box.bottomR.x - box.topL.x)
+        PIXEL_HEIGHT * box.topL.x, 
+        PIXEL_HEIGHT * box.topL.y, 
+        PIXEL_HEIGHT * (box.bottomR.x - box.topL.x),
+        PIXEL_HEIGHT * (box.bottomR.y - box.topL.y)
       );
     });
     const attacKBoxes = fighter.getAttackBoxes();
@@ -75,10 +73,10 @@ export class SpriteDrawingService {
       ctx.lineWidth = 1;
       ctx.strokeStyle = "red";
       ctx.strokeRect(
-          PIXEL_HEIGHT * box.topL.y, 
-          PIXEL_HEIGHT * box.topL.x, 
-          PIXEL_HEIGHT * (box.bottomR.y - box.topL.y),
-          PIXEL_HEIGHT * (box.bottomR.x - box.topL.x)
+        PIXEL_HEIGHT * box.topL.x, 
+        PIXEL_HEIGHT * box.topL.y, 
+        PIXEL_HEIGHT * (box.bottomR.x - box.topL.x),
+        PIXEL_HEIGHT * (box.bottomR.y - box.topL.y)
       );
     });
   }

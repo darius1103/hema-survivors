@@ -31,7 +31,7 @@ export class Character {
     }
 
     public attemptAttack(attackBoxes: Box[], damage: number): void {
-       const gotHit = this.figther.attemptAttack(attackBoxes, damage);
+       const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition);
        console.log(gotHit ? "WE HAVE A HIT" :  "MISS")
     }
  
