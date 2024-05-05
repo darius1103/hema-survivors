@@ -1,5 +1,5 @@
 import { Box } from "../utils/box";
-import { PIXEL_HEIGHT, SPRITE_SIZE } from "../utils/globals";
+import { PIXEL_SIZE, SPRITE_SIZE } from "../utils/globals";
 import { BodyPart } from "./body-part";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
@@ -49,9 +49,9 @@ export class Weapon extends BodyPart {
             [0,0,9,9,0,0],
         ];
         this.anchorPoints = [new XYLocation(data.length - 5, 3)];
-        // this.attackBox.push({topL: new XYLocation(SPRITE_SIZE / 4, SPRITE_SIZE / 2), bottomR:  new XYLocation(SPRITE_SIZE / 2, SPRITE_SIZE)});
-        // this.attackBox.push({topL: new XYLocation(2, SPRITE_SIZE / 2), bottomR:  new XYLocation(SPRITE_SIZE / 4, SPRITE_SIZE / 4 * 3)});
-        this.attackBox.push({topL: new XYLocation(1, SPRITE_SIZE / 2), bottomR:  new XYLocation(SPRITE_SIZE - 1, SPRITE_SIZE - 1)});
+        this.attackBox.push({topL: new XYLocation((SPRITE_SIZE * PIXEL_SIZE) / 2, (SPRITE_SIZE * PIXEL_SIZE) / 4), bottomR:  new XYLocation((SPRITE_SIZE * PIXEL_SIZE), (SPRITE_SIZE * PIXEL_SIZE) / 2)});
+        this.attackBox.push({topL: new XYLocation((SPRITE_SIZE * PIXEL_SIZE) / 2, 2), bottomR:  new XYLocation((SPRITE_SIZE * PIXEL_SIZE) / 4 * 3, (SPRITE_SIZE * PIXEL_SIZE) / 4)});
+        // this.attackBox = [{topL: new XYLocation((SPRITE_SIZE * PIXEL_SIZE) / 2, 1), bottomR:  new XYLocation((SPRITE_SIZE * PIXEL_SIZE) - 1, (SPRITE_SIZE * PIXEL_SIZE) - 1)}];
         const frame = new SpriteFrame(data);
         this.sprite =  new Sprite([frame]);
     }

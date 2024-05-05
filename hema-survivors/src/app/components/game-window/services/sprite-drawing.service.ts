@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Fighter } from '../classes/fighter';
 import { SpriteFrame } from '../classes/sprite-frame';
+import { Box } from '../utils/box';
 import { codeToColor } from '../utils/colorLookUp';
-import { DEBUG_MODE, PIXEL_HEIGHT } from '../utils/globals';
+import { DEBUG_MODE, PIXEL_SIZE } from '../utils/globals';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +21,8 @@ export class SpriteDrawingService {
   }
 
   private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame, offset: number = 0): void {
-    const frameHeight = frame.data.length * PIXEL_HEIGHT;
-    const frameWidth = frame.data[0].length * PIXEL_HEIGHT;
+    const frameHeight = frame.data.length * PIXEL_SIZE;
+    const frameWidth = frame.data[0].length * PIXEL_SIZE;
     for (let i: number = 0; i < frame.data.length; i++) {
       const frameRow = frame.data[i]
       for (let j: number = 0; j < frameRow.length; j++) {
@@ -31,10 +32,10 @@ export class SpriteDrawingService {
         }
         ctx.beginPath();
         ctx.rect(
-        PIXEL_HEIGHT * j,
-        PIXEL_HEIGHT * i + offset * frameWidth,
-        PIXEL_HEIGHT,
-        PIXEL_HEIGHT);
+        PIXEL_SIZE * j,
+        PIXEL_SIZE * i + offset * frameWidth,
+        PIXEL_SIZE,
+        PIXEL_SIZE);
         ctx.fillStyle = codeToColor.get(frameRow[j]) as any;
         ctx.fill();
       }
@@ -58,25 +59,19 @@ export class SpriteDrawingService {
   }
 
   private drawHitBoxes(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
-    const boxes = fighter.getHitBoxes();
+    this.drawBoxes(ctx,fighter.getHitBoxes(), "black");
+    this.drawBoxes(ctx,fighter.getAttackBoxes(), "red");
+  }
+
+  public drawBoxes(ctx: CanvasRenderingContext2D, boxes: Box[], style: string): void {
     boxes.forEach((box) => {
       ctx.lineWidth = 1;
+      ctx.strokeStyle = style;
       ctx.strokeRect(
-        PIXEL_HEIGHT * box.topL.x, 
-        PIXEL_HEIGHT * box.topL.y, 
-        PIXEL_HEIGHT * (box.bottomR.x - box.topL.x),
-        PIXEL_HEIGHT * (box.bottomR.y - box.topL.y)
-      );
-    });
-    const attacKBoxes = fighter.getAttackBoxes();
-    attacKBoxes.forEach((box) => {
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "red";
-      ctx.strokeRect(
-        PIXEL_HEIGHT * box.topL.x, 
-        PIXEL_HEIGHT * box.topL.y, 
-        PIXEL_HEIGHT * (box.bottomR.x - box.topL.x),
-        PIXEL_HEIGHT * (box.bottomR.y - box.topL.y)
+        box.topL.x, 
+        box.topL.y, 
+        (box.bottomR.x - box.topL.x),
+        (box.bottomR.y - box.topL.y)
       );
     });
   }

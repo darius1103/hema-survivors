@@ -8,7 +8,7 @@ import { ControlStatus } from './utils/control-status';
 import { XYLocation } from './classes/xylocation';
 import { Enemy } from './classes/enemy';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
-import { DEBUG_MODE, PIXEL_HEIGHT, SPRITE_SIZE, toggleDebugMode } from './utils/globals';
+import { DEBUG_MODE, MAX_ENEMIES, PIXEL_SIZE, SPRITE_SIZE, toggleDebugMode } from './utils/globals';
 import { Fighter } from './classes/fighter';
 
 @Component({
@@ -66,10 +66,10 @@ export class GameWindowComponent {
 
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
-    this.enemyCanvas.nativeElement.width = PIXEL_HEIGHT * SPRITE_SIZE;
-    this.enemyCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_SIZE;
-    this.heroCanvas.nativeElement.width =  PIXEL_HEIGHT * SPRITE_SIZE;
-    this.heroCanvas.nativeElement.height = PIXEL_HEIGHT * SPRITE_SIZE;
+    this.enemyCanvas.nativeElement.width = PIXEL_SIZE * SPRITE_SIZE;
+    this.enemyCanvas.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
+    this.heroCanvas.nativeElement.width =  PIXEL_SIZE * SPRITE_SIZE;
+    this.heroCanvas.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
     this.debugCanvas.nativeElement.width =  14 * SPRITE_SIZE;
     this.debugCanvas.nativeElement.height = 14 * SPRITE_SIZE;
 
@@ -167,19 +167,21 @@ export class GameWindowComponent {
   }
 
   private moveEnemies(): void {
-    // this.enemies.forEach((enemy)=> {
-    //   enemy.move(this.topLeftCorner, this.bottomRightCorner);
-    // });
+    this.enemies.forEach((enemy)=> {
+      enemy.move(this.topLeftCorner, this.bottomRightCorner);
+    });
     this.adjustHitAreas();
   }
 
   private playerAttack(): void {
     const fighter = this.player.getFighter();
     fighter.attack(this.hitAreas, this.player.getAbsolutePositon());
+    this.spriteDrawing.drawBoxes(this.domContext, fighter.getAdjustedAttackBox(), "green");
+    this.spriteDrawing.drawBoxes(this.domContext, fighter.getAdjustedHitBoxes(), "blue");
   }
 
   private spawnEnemy(): void {
-    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length >= 1) {
+    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length >= MAX_ENEMIES) {
       return;
     }
     this.lastEnemySpawnTime = Date.now();
@@ -187,8 +189,8 @@ export class GameWindowComponent {
     const playerLocation = this.playerLocation$.getValue();
     const modifier1 = this.getRandomInt(2) === 0? -1 : 1;
     const modifier2 = this.getRandomInt(2) === 0? -1 : 1;
-    // const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2};
-    const enemyLocation = {x: 0, y: 0};
+    const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2};
+    // const enemyLocation = {x: 50, y: 0};
     const enemyId = this.lastEnemySpawnTime + "-" + this.getRandomInt(100);
 
     const enemy = new Enemy(
@@ -225,7 +227,6 @@ export class GameWindowComponent {
       const areaMap = this.hitAreas.get(areaNewId);
       areaMap?.set(enemyId, enemy);
     });
-    console.log(this.hitAreas.size);
   }
 
   private getRandomInt(max: number): number {

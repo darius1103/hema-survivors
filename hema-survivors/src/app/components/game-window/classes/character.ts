@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { Box } from "../utils/box";
 import { ControlStatus } from "../utils/control-status";
-import { PIXEL_HEIGHT } from "../utils/globals";
+import { PIXEL_SIZE } from "../utils/globals";
 import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
 import { Fighter } from "./fighter";
 import { Sprite } from "./sprite";
@@ -45,8 +45,8 @@ export class Character {
     
     private defineSprinte(): void {
         this.sprite = new Sprite([new SpriteFrame(FRAME_ONE), new SpriteFrame(FRAME_TWO)]);
-        this.height = FRAME_ONE.length * PIXEL_HEIGHT;
-        this.width = FRAME_ONE[0].length * PIXEL_HEIGHT;
+        this.height = FRAME_ONE.length * PIXEL_SIZE;
+        this.width = FRAME_ONE[0].length * PIXEL_SIZE;
     }
 
     public getSprite(): Sprite {

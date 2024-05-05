@@ -1,5 +1,5 @@
 import { range } from "rxjs";
-import { SPRITE_SIZE } from "../utils/globals";
+import { PIXEL_SIZE, SPRITE_SIZE } from "../utils/globals";
 import { Arm } from "./arm";
 import { BodyPart } from "./body-part";
 import { Torso } from "./torso";
@@ -30,8 +30,10 @@ export class Fighter{
     public sprite: Sprite = null as any;
     public hitBoxes: Box[] = [];
     private attackBox: Box[] = [];
+    private adjustedAttackBox: Box[] = [];
+    private adjustedHitBoxes: Box[] = [];
     private lastAttack: number = 0;
-    private attackDelay: number = 1;
+    private attackDelay: number = 2000;
 
     constructor() {
         this.defineSprite();
@@ -50,16 +52,19 @@ export class Fighter{
          .flatMap((area: any) => Array.from(area.values()));
         if (enemiesInRange.length == 0) {
             console.log("no enemies in range");
+            this.adjustedAttackBox = [];
             return;
         }
         console.log("Enemies in range: " + enemiesInRange.length);
+        this.adjustedAttackBox = this.mapBoxesToAbsolute(this.attackBox, ownLocation);
         enemiesInRange
             .forEach((enemy: any) => (enemy as Enemy)
-                .attemptAttack(this.mapBoxesToAbsolute(this.attackBox, ownLocation), 2));
+                .attemptAttack(this.adjustedAttackBox, 2));
     }
 
     public attemptAttack(attackBoxes: Box[], damage: number, location: XYLocation): boolean {
-        return this.mapBoxesToAbsolute(this.hitBoxes, location)
+        this.adjustedHitBoxes = this.mapBoxesToAbsolute(this.hitBoxes, location);
+        return this.adjustedHitBoxes
             .some((box) => this.checkColision(box, attackBoxes));
     }
 
@@ -75,15 +80,23 @@ export class Fighter{
         });
     }
 
+    public getAdjustedAttackBox(): Box[] {
+        return this.adjustedAttackBox;
+    }
+
+    public getAdjustedHitBoxes(): Box[] {
+        return this.adjustedHitBoxes;
+    }
+
     private mapBoxesToAbsolute(boxes: Box[], location: XYLocation): Box[] {
         return boxes.map(box => this.mapBoxToAbsolute(box, location));
     }
 
     private mapBoxToAbsolute(box: Box, location: XYLocation): Box {
-        const x1 = location.x - (SPRITE_SIZE / 2) + box.topL.x;
-        const y1 = location.y - (SPRITE_SIZE / 2) + box.topL.y;
-        const x2 = location.x - (SPRITE_SIZE / 2) + box.bottomR.x;
-        const y2 = location.y - (SPRITE_SIZE / 2) + box.bottomR.y;
+        const x1 = location.x - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.topL.x;
+        const y1 = location.y - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.topL.y;
+        const x2 = location.x - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.bottomR.x;
+        const y2 = location.y - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.bottomR.y;
         return {topL: new XYLocation(x1 ,y1), bottomR: new XYLocation(x2 ,y2)};
     }
 
@@ -133,7 +146,7 @@ export class Fighter{
             this.attackBox = this.attackBox.concat((arm.getWeapon() ? arm.getWeapon()?.getAttackBox() : []) as any);
         });
         this.sprite = new Sprite([new SpriteFrame(frameData)]);
-        this.hitBoxes = [{topL: new XYLocation(1, 1), bottomR: new XYLocation(63, 63)}];
+        // this.hitBoxes = [{topL: new XYLocation(1, 1), bottomR: new XYLocation((SPRITE_SIZE * PIXEL_SIZE), (SPRITE_SIZE * PIXEL_SIZE))}];
     }
 
     public getSprite(): Sprite {
@@ -160,12 +173,11 @@ export class Fighter{
                     frameData[rowIndex + deviationX][columnIndex + deviationY] = value;
                     maxX = Math.max(maxX , columnIndex + deviationY + 1);
                     maxY = Math.max(maxY , rowIndex + deviationX + 1);
-                    console.log({maxY, maxX});
                 }
             });
         });
-        const topL = new XYLocation(deviationY, deviationX);
-        const bottomR = new XYLocation(maxX, maxY);
+        const topL = new XYLocation(deviationY * PIXEL_SIZE, deviationX * PIXEL_SIZE);
+        const bottomR = new XYLocation(maxX * PIXEL_SIZE, maxY * PIXEL_SIZE);
         this.hitBoxes.push({topL, bottomR});
         return frameData;
     }
