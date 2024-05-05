@@ -174,7 +174,7 @@ export class GameWindowComponent {
 
   private playerAttack(): void {
     const fighter = this.player.getFighter();
-    fighter.attack();
+    fighter.attack(this.hitAreas, this.player.getAbsolutePositon());
   }
 
   private spawnEnemy(): void {
@@ -204,12 +204,9 @@ export class GameWindowComponent {
       const enemyOldLocation = enemy.getOldPositon();
       const areaNewId = Math.floor(enemyLocation.x / 50) + "-" + Math.floor(enemyLocation.y / 50);
       const areaOldId = Math.floor(enemyOldLocation.x / 50) + "-" + Math.floor(enemyOldLocation.y / 50);
-      console.log(areaNewId);
-      console.log(areaOldId);
       if (areaNewId == areaOldId && this.hitAreas.size > 0) {
         return;
       }
-      console.log("changed")
       // Clean old
       if (this.hitAreas.has(areaOldId)) {
         const hitArea = this.hitAreas.get(areaOldId);

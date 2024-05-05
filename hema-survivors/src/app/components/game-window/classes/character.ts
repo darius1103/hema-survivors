@@ -1,4 +1,5 @@
 import { Observable } from "rxjs";
+import { Box } from "../utils/box";
 import { ControlStatus } from "../utils/control-status";
 import { PIXEL_HEIGHT } from "../utils/globals";
 import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
@@ -16,7 +17,7 @@ export class Character {
     public height: number = 0;
     private speed: number = 1;
     private sprite: Sprite = new Sprite([]);
-    private animationState: number = 0;
+    private health: number = 10;
 
     constructor(innitialLocation: XYLocation, fighter: Fighter) {
         this.figther = fighter;
@@ -29,6 +30,11 @@ export class Character {
         return this.figther;
     }
 
+    public attemptAttack(attackBoxes: Box[], damage: number): void {
+       const gotHit = this.figther.attemptAttack(attackBoxes, damage);
+       console.log(gotHit ? "WE HAVE A HIT" :  "MISS")
+    }
+ 
     public getAbsolutePositon(): XYLocation {
         return this.absolutePosition;
     }

@@ -14,6 +14,7 @@ import { XYLocation } from "./xylocation";
 import { FighterSettings } from "../utils/fitherSettings";
 import { Color } from "../utils/color";
 import { Box } from "../utils/box";
+import { Enemy } from "./enemy";
 
 export class Fighter{
     public settings: FighterSettings = {
@@ -30,19 +31,62 @@ export class Fighter{
     public hitBoxes: Box[] = [];
     private attackBox: Box[] = [];
     private lastAttack: number = 0;
-    private attackDelay: number = 2000;
+    private attackDelay: number = 1;
 
     constructor() {
         this.defineSprite();
     }
 
-    public attack(): void {
+    public attack(hitAreas: Map<string, Map<string, Enemy>>, ownLocation: XYLocation): void {
         if (Date.now() - this.lastAttack < this.attackDelay) {
-            console.log("Not ready to attack again...");
             return;
         }
         this.lastAttack = Date.now();
         console.log("attacking");
+        const ids = this.determineAttackRange(ownLocation);
+        console.log(ids);
+        const enemiesInRange = ids
+         .filter(id => hitAreas.has(id))
+         .map(id => hitAreas.get(id))
+         .filter((area: any) => area || area.size === 0)
+         .flatMap((area: any) => Array.from(area.values()));
+        if (enemiesInRange.length == 0) {
+            console.log("no enemies in range");
+            return;
+        }
+        console.log("Enemies in range: " + enemiesInRange.length);
+        enemiesInRange.forEach((enemy: any) => (enemy as Enemy).attemptAttack(this.attackBox, 2));
+    }
+
+    public attemptAttack(attackBoxes: Box[], damage: number): boolean {
+        console.log("Getting attacked");
+        return this.hitBoxes
+            .some((box) => this.checkColision(box, attackBoxes));
+    }
+
+    public checkColision(box1: Box, boxes: Box[]): boolean {
+        return boxes.some((box2) => {
+            // no horizontal overlap
+            if (box1.topL.x >= box2.bottomR.x || box2.topL.x >= box1.bottomR.x) return false;
+
+            // no vertical overlap
+            if (box1.topL.y >= box2.bottomR.y || box2.topL.y >= box1.bottomR.y) return false;
+
+            return true;
+        });
+    }
+
+    private determineAttackRange(ownLocation: XYLocation): string[] {
+        const ownXID = Math.floor(ownLocation.x / 50);
+        const ownYID = Math.floor(ownLocation.y / 50);
+        const areas = [];
+        const range = 3;
+        for (let i = -range; i <= range; i ++) {
+            for (let j = -range; j <= range; j ++) {
+                areas.push((ownXID + i) + "-" + (ownYID - j))
+            }
+        }
+        return areas;
     }
 
     public getAttackBoxes(): Box[] {
@@ -78,6 +122,7 @@ export class Fighter{
             this.attackBox = this.attackBox.concat((arm.getWeapon() ? arm.getWeapon()?.getAttackBox() : []) as any);
         });
         this.sprite = new Sprite([new SpriteFrame(frameData)]);
+        this.hitBoxes = [{topL: new XYLocation(1, 1), bottomR: new XYLocation(63, 63)}];
     }
 
     public getSprite(): Sprite {
