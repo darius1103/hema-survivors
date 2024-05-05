@@ -1,12 +1,13 @@
 import { Observable } from "rxjs";
 import { Character } from "./character";
+import { Fighter } from "./fighter";
 import { XYLocation } from "./xylocation";
 
 export class Enemy extends Character  {
     private lastKnownPlayerLocation: XYLocation = null as any;
 
-    constructor(innitialLocation: XYLocation, stream: Observable<XYLocation>) {
-        super(innitialLocation);
+    constructor(innitialLocation: XYLocation, stream: Observable<XYLocation>, fighter: Fighter) {
+        super(innitialLocation, fighter);
         super.setSpeed(0.4);
         stream.subscribe((location) => {
             this.lastKnownPlayerLocation = location;

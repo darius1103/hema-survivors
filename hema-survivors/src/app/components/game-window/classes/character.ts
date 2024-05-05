@@ -2,11 +2,13 @@ import { Observable } from "rxjs";
 import { ControlStatus } from "../utils/control-status";
 import { PIXEL_HEIGHT } from "../utils/globals";
 import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
+import { Fighter } from "./fighter";
 import { Sprite } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
 export class Character {
+    private figther: Fighter;
     public absolutePosition: XYLocation = new XYLocation(0, 0);
     public controlStatus: ControlStatus = {UP: false, DOWN: false, LEFT: false, RIGHT: false};
     private oldAbsolutePosition: XYLocation = new XYLocation(0, 0);
@@ -16,12 +18,17 @@ export class Character {
     private sprite: Sprite = new Sprite([]);
     private animationState: number = 0;
 
-    constructor(innitialLocation: XYLocation) {
+    constructor(innitialLocation: XYLocation, fighter: Fighter) {
+        this.figther = fighter;
         this.absolutePosition.x = innitialLocation.x;
         this.absolutePosition.y = innitialLocation.y;
         this.defineSprinte();
     }
 
+    public getFighter(): Fighter {
+        return this.figther;
+    }
+    
     private defineSprinte(): void {
         this.sprite = new Sprite([new SpriteFrame(FRAME_ONE), new SpriteFrame(FRAME_TWO)]);
         this.height = FRAME_ONE.length * PIXEL_HEIGHT;

@@ -28,9 +28,25 @@ export class Fighter{
     public waist: Waist = new Waist(this.settings);
     public sprite: Sprite = null as any;
     public hitBoxes: Box[] = [];
+    private attackBox: Box[] = [];
+    private lastAttack: number = 0;
+    private attackDelay: number = 2000;
 
     constructor() {
         this.defineSprite();
+    }
+
+    public attack(): void {
+        if (Date.now() - this.lastAttack < this.attackDelay) {
+            console.log("Not ready to attack again...");
+            return;
+        }
+        this.lastAttack = Date.now();
+        console.log("attacking");
+    }
+
+    public getAttackBoxes(): Box[] {
+        return this.attackBox;
     }
 
     public defineSprite(): void {
@@ -59,6 +75,7 @@ export class Fighter{
                 this.relativeToChest(this.torso.armAnchorPoints[index], 0),
                 0
             );
+            this.attackBox = this.attackBox.concat((arm.getWeapon() ? arm.getWeapon()?.getAttackBox() : []) as any);
         });
         this.sprite = new Sprite([new SpriteFrame(frameData)]);
     }

@@ -60,11 +60,20 @@ export class SpriteDrawingService {
   }
 
   private drawHitBoxes(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
-    console.log("fighter.getHitBoxes()");
-    console.log(fighter.getHitBoxes());
     const boxes = fighter.getHitBoxes();
     boxes.forEach((box) => {
       ctx.lineWidth = 1;
+      ctx.strokeRect(
+          PIXEL_HEIGHT * box.topL.y, 
+          PIXEL_HEIGHT * box.topL.x, 
+          PIXEL_HEIGHT * (box.bottomR.y - box.topL.y),
+          PIXEL_HEIGHT * (box.bottomR.x - box.topL.x)
+      );
+    });
+    const attacKBoxes = fighter.getAttackBoxes();
+    attacKBoxes.forEach((box) => {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "red";
       ctx.strokeRect(
           PIXEL_HEIGHT * box.topL.y, 
           PIXEL_HEIGHT * box.topL.x, 

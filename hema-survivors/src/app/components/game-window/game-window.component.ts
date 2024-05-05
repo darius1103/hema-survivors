@@ -38,15 +38,14 @@ export class GameWindowComponent {
   private bottomRightCorner: XYLocation = new XYLocation(this.HEIGHT, this.WIDTH);
   private innitialPlayerLocation = {x: this.HEIGHT/2, y: this.WIDTH/2};
   private requireTranslation: XYLocation = new XYLocation(0,0);
+  private lastEnemySpawnTime = 0;
+  private enemySpawnDelay = 2000;
 
   constructor (private spriteDrawing: SpriteDrawingService) {
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
     this.playerLocation$ = new BehaviorSubject<XYLocation>(this.innitialPlayerLocation);
-    this.player = new Player(this.innitialPlayerLocation);
-    const playerObs = this.playerLocation$.asObservable();
+    this.player = new Player(this.innitialPlayerLocation, new Fighter());
     
-    // this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
-    // this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
 
@@ -83,15 +82,15 @@ export class GameWindowComponent {
   }
 
   drawSpritePlayer(): void {
-    const fighter = new Fighter();
+    const fighter = this.player.getFighter();
     this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), fighter);
     this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), fighter.getSprite().frames[0], 0);
   }
 
   drawSpriteEnemy(): void {
-    if (this.enemies.length <= 0) {
-      return;
-    }
+    // if (this.enemies.length <= 0) {
+    //   return;
+    // }
     const fighter = new Fighter();
     this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
   }
@@ -171,11 +170,41 @@ export class GameWindowComponent {
     });
   }
 
+  private playerAttack(): void {
+    const fighter = this.player.getFighter();
+    fighter.attack();
+  }
+
+  private spawnEnemy(): void {
+    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length > 10) {
+      console.log("Not spawing...");
+      return;
+    }
+    this.lastEnemySpawnTime = Date.now();
+    console.log("Spawing...");
+    console.log("Player Current Position");
+    const playerLocation = this.playerLocation$.getValue();
+    console.log(playerLocation);
+    const modifier1 = this.getRandomInt(2) === 0? -1 : 1;
+    const modifier2 = this.getRandomInt(2) === 0? -1 : 1;
+    const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2}
+    this.enemies.push(
+      new Enemy(enemyLocation, 
+      this.playerLocation$.asObservable(), 
+      new Fighter()));
+  }
+
+  private getRandomInt(max: number): number {
+    return Math.floor(Math.random() * max);
+  }
+
   private animate(): void {
     if (this.currentFrame < this.delay) {
       this.currentFrame++;
       window.requestAnimationFrame(() => this.animate());
     } else {
+      this.spawnEnemy();
+
       this.movePlayer();
       this.moveEnemies();
 
@@ -183,6 +212,8 @@ export class GameWindowComponent {
       this.drawBorders();
       this.drawEnemies();
       this.drawPlayer();
+
+      this.playerAttack();
 
       this.currentFrame = 0;
       if (!DEBUG_MODE) {
