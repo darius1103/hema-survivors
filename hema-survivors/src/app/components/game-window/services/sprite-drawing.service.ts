@@ -1,7 +1,4 @@
 import { Injectable } from '@angular/core';
-import { first } from 'rxjs';
-import { BodyPart } from '../classes/body-part';
-import { Torso } from '../classes/torso';
 import { Fighter } from '../classes/fighter';
 import { Sprite } from '../classes/sprite';
 import { SpriteFrame } from '../classes/sprite-frame';
@@ -16,11 +13,12 @@ export class SpriteDrawingService {
 
   constructor() { }
 
-  public draw(ctx: CanvasRenderingContext2D, sprite: Sprite): void {
-    console.log(sprite);
+  public draw(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
+    const sprite = fighter.getSprite();
     for (let i = 0; i < sprite.frames.length; i++) {
       this.drawFrame(ctx, sprite.frames[i], i);   
     }
+    this.drawHitBoxes(ctx, fighter);
   }
 
   private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame, offset: number = 0): void {
@@ -61,104 +59,18 @@ export class SpriteDrawingService {
     });
   }
 
-  public drawFighter(ctx:CanvasRenderingContext2D, fighter: Fighter): void {
-    this.drawBodyPart(ctx, fighter.torso.waistAnchorPoint, fighter.waist);
-    this.drawChest(ctx, fighter.torso);
-    this.drawBodyPart(ctx, fighter.torso.headAnchorPoint, fighter.head);
-    fighter.arms.forEach((arm, index) => {
-      const weapon = arm.getWeapon();
-      if (weapon) {
-        const handRelativeToBody = new XYLocation(
-          arm.getWeaponAnchorPoints()[0].x + fighter.torso.armAnchorPoints[index].x, 
-          arm.getWeaponAnchorPoints()[0].y + fighter.torso.armAnchorPoints[index].y);
-        this.drawBodyPart(ctx, handRelativeToBody, weapon);
-      }
-      this.drawBodyPart(ctx, fighter.torso.armAnchorPoints[index], arm);
+  private drawHitBoxes(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
+    console.log("fighter.getHitBoxes()");
+    console.log(fighter.getHitBoxes());
+    const boxes = fighter.getHitBoxes();
+    boxes.forEach((box) => {
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
+          PIXEL_HEIGHT * box.topL.y, 
+          PIXEL_HEIGHT * box.topL.x, 
+          PIXEL_HEIGHT * (box.bottomR.y - box.topL.y),
+          PIXEL_HEIGHT * (box.bottomR.x - box.topL.x)
+      );
     });
-    // fighter.legs.forEach((leg, index) => {
-    //   const waistRelativeToBody = new XYLocation(
-    //     fighter.waist.legsAnchorPoints[index].x + fighter.torso.waistAnchorPoint.x, 
-    //     fighter.waist.legsAnchorPoints[index].y + fighter.torso.waistAnchorPoint.y);
-    //   this.drawBodyPart(ctx, waistRelativeToBody, leg);
-    // });
-  }
-
-  public drawChest(ctx:CanvasRenderingContext2D, torso: Torso): void {
-    const index = 0;
-    const spriteSize = 64;
-    const center = spriteSize / 2;
-
-    const torsoFrame = torso.getSprite().frames[index];
-    const torsoAnchor = torso.getAnchorPoints()[index];
-
-    const frameHeight = torsoFrame.data.length;
-    const frameWidth = torsoFrame.data[0].length;
-
-    for (let i: number = 0; i < spriteSize; i++) {
-      for (let j: number = 0; j < spriteSize; j++) {
-        ctx.beginPath();
-        ctx.rect(
-        PIXEL_HEIGHT * j,
-        PIXEL_HEIGHT * i,
-        PIXEL_HEIGHT,
-        PIXEL_HEIGHT);
-        ctx.fillStyle = "yellow";
-        const adjustX = (i + torsoAnchor.y - center);
-        const adjustY = (j + torsoAnchor.x - center);
-        if (
-          (adjustX >= 0 && adjustX < frameHeight) &&
-          (adjustY >= 0 && adjustY < frameWidth) 
-        ) {
-          if (codeToColor.has(torsoFrame.data[adjustX][adjustY])) {
-            ctx.fillStyle = codeToColor.get(torsoFrame.data[i + torsoAnchor.y - center][j + torsoAnchor.x - center]) as any;
-            ctx.fill();
-          }
-        }
-      }
-    }
-  }
-
-  public drawBodyPart(ctx: CanvasRenderingContext2D, torsoAnchorPoint: XYLocation, part: BodyPart) {
-    const index = 0;
-    const spriteSize = 64;
-    const center = spriteSize / 2;
-
-    const partFrame = part.getSprite().frames[index];
-    const partAnchor = new XYLocation(
-      part.getAnchorPoints()[index].x - torsoAnchorPoint.x, 
-      part.getAnchorPoints()[index].y - torsoAnchorPoint.y);
-
-    const frameHeight = partFrame.data.length;
-    const frameWidth = partFrame.data[0].length;
-
-    for (let i: number = 0; i < spriteSize; i++) {
-      for (let j: number = 0; j < spriteSize; j++) {
-        ctx.beginPath();
-        ctx.rect(
-        PIXEL_HEIGHT * j,
-        PIXEL_HEIGHT * i,
-        PIXEL_HEIGHT,
-        PIXEL_HEIGHT);
-        ctx.fillStyle = "green";
-        const adjustX = (i + partAnchor.x - center);
-        const adjustY = (j + partAnchor.y - center);
-        if (
-          (adjustX >= 0 && adjustX < frameHeight) &&
-          (adjustY >= 0 && adjustY < frameWidth) 
-        ) {
-          if (DEBUG_MODE) {
-                console.log(partFrame.data[adjustX][adjustY]);
-                console.log(i);
-                console.log(j);
-                console.log(partAnchor);
-                console.log(torsoAnchorPoint);
-          }
-          if (codeToColor.has(partFrame.data[adjustX][adjustY])) {
-            ctx.fillStyle = codeToColor.get(partFrame.data[adjustX][adjustY]) as any;
-            ctx.fill();
-          }
-        }
-      }
-    }
   }
 }

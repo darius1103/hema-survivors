@@ -1,4 +1,4 @@
-import { range } from "rxjs";
+import { max, range } from "rxjs";
 import { SPRITE_SIZE } from "../utils/globals";
 import { Arm } from "./arm";
 import { BodyPart } from "./body-part";
@@ -13,6 +13,7 @@ import { Waist } from "./waist";
 import { XYLocation } from "./xylocation";
 import { FighterSettings } from "../utils/fitherSettings";
 import { Color } from "../utils/color";
+import { Box } from "../utils/box";
 
 export class Fighter{
     public settings: FighterSettings = {
@@ -26,6 +27,7 @@ export class Fighter{
     public torso: Torso = new Torso(this.settings);
     public waist: Waist = new Waist(this.settings);
     public sprite: Sprite = null as any;
+    public hitBoxes: Box[] = [];
 
     constructor() {
         this.defineSprite();
@@ -65,21 +67,33 @@ export class Fighter{
         return this.sprite;
     }
 
+    public getHitBoxes(): Box[] {
+        return this.hitBoxes;
+    }
+
     private appendBodyPart(frameData: number[][], bodyPart: BodyPart, anchorPoint: XYLocation, index: number): number[][] {
         const bodyPartFrame = bodyPart.getSprite().frames[index];
         const bodyPartAnchor = bodyPart.getAnchorPoints()[index];
         const center = SPRITE_SIZE / 2;
         const deviationX = center + anchorPoint.x - bodyPartAnchor.x;
         const deviationY = center + anchorPoint.y - bodyPartAnchor.y;
+        const topL = new XYLocation(deviationX, deviationY);
+        let bottomR = new XYLocation(deviationX, deviationY);
+        let maxX = deviationX;
+        let maxY = deviationY;
 
         bodyPartFrame.data.forEach((row: number[], rowIndex: number) => {
             frameData[rowIndex + deviationX] = frameData[rowIndex + deviationX] ? frameData[rowIndex + deviationX] : [];
             row.forEach((value: number, columnIndex: number) => {
                 if (value) {
                     frameData[rowIndex + deviationX][columnIndex + deviationY] = value;
+                    maxX = Math.max(maxX , rowIndex + deviationX + 1);
+                    maxY = Math.max(maxY , columnIndex + deviationY + 1);
+                    bottomR = new XYLocation(maxX, maxY);
                 }
             });
         });
+        this.hitBoxes.push({topL, bottomR});
         return frameData;
     }
 

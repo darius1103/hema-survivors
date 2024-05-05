@@ -45,8 +45,8 @@ export class GameWindowComponent {
     this.player = new Player(this.innitialPlayerLocation);
     const playerObs = this.playerLocation$.asObservable();
     
-    this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
-    this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
+    // this.enemies.push(new Enemy({x: this.HEIGHT/4, y: this.WIDTH/4}, playerObs));
+    // this.enemies.push(new Enemy({x: this.HEIGHT/4*3, y: this.WIDTH/4}, playerObs));
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
 
@@ -84,7 +84,7 @@ export class GameWindowComponent {
 
   drawSpritePlayer(): void {
     const fighter = new Fighter();
-    this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), fighter.getSprite());
+    this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), fighter);
     this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), fighter.getSprite().frames[0], 0);
   }
 
@@ -93,7 +93,7 @@ export class GameWindowComponent {
       return;
     }
     const fighter = new Fighter();
-    this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), fighter.getSprite());
+    this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
   }
 
   handleInput(event: any, type: string): void {
