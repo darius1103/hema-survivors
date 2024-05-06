@@ -59,7 +59,7 @@ export class Fighter{
         this.adjustedAttackBox = this.mapBoxesToAbsolute(this.attackBox, ownLocation);
         enemiesInRange
             .forEach((enemy: any) => (enemy as Enemy)
-                .attemptAttack(this.adjustedAttackBox, 2));
+                .attemptAttack(this.adjustedAttackBox, 4));
     }
 
     public attemptAttack(attackBoxes: Box[], damage: number, location: XYLocation): boolean {

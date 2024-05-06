@@ -49,6 +49,7 @@ export class GameWindowComponent {
   private playerId: string;
   private hitAreas: Map<string, Map<string, Enemy>> = new Map<string, Map<string, Enemy>>();
   private temporaryTexts: TemporaryText[] = [];
+  private score = 0;
 
   constructor (private spriteDrawing: SpriteDrawingService) {
     this.events$ =  {
@@ -157,9 +158,12 @@ export class GameWindowComponent {
       console.log("You can't die like this...");
       return;
     }
-    console.log("Killing enemy");
     this.deleteFromHitArea(death.id);
     this.enemiesCount--;
+    const playerLocation = this.playerLocation$.getValue();
+    const textLocation = {x: playerLocation.x, y: playerLocation.y - SPRITE_SIZE};
+    this.score++;
+    this.temporaryTexts.push(new TemporaryText(5000, textLocation, this.score.toString(), "bold 16px Arial ", "red"));
   }
 
   private handleEnemyHit(hit: HitEvent): void {
