@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 import { Box } from "../utils/box";
 import { ControlStatus } from "../utils/control-status";
+import { EventsStreams } from "../utils/events-streams";
 import { PIXEL_SIZE } from "../utils/globals";
 import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
 import { Fighter } from "./fighter";
@@ -9,6 +10,7 @@ import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
 export class Character {
+    private id: string;
     private figther: Fighter;
     public absolutePosition: XYLocation = new XYLocation(0, 0);
     public controlStatus: ControlStatus = {UP: false, DOWN: false, LEFT: false, RIGHT: false};
@@ -17,9 +19,13 @@ export class Character {
     public height: number = 0;
     private speed: number = 1;
     private sprite: Sprite = new Sprite([]);
-    private health: number = 10;
+    private maxHealth: number = 10;
+    private currentHealth: number = 10;
+    private events$: EventsStreams;
 
-    constructor(innitialLocation: XYLocation, fighter: Fighter) {
+    constructor(innitialLocation: XYLocation, fighter: Fighter, id: string, events$: EventsStreams) {
+        this.id = id;
+        this.events$ = events$;
         this.figther = fighter;
         this.absolutePosition.x = innitialLocation.x;
         this.absolutePosition.y = innitialLocation.y;
@@ -32,7 +38,20 @@ export class Character {
 
     public attemptAttack(attackBoxes: Box[], damage: number): void {
        const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition);
-       console.log(gotHit ? "WE HAVE A HIT" :  "MISS")
+       console.log(gotHit ? "WE HAVE A HIT" :  "MISS");
+       if (gotHit) {
+            this.events$.hit.next({text: damage.toString(), unit: this.figther});
+            this.currentHealth -= damage;
+            if (this.currentHealth <= 0) {
+                this.events$.death.next({
+                    id: this.id, 
+                    unit: this.figther});
+            }
+       }
+    }
+
+    public getId(): string {
+        return this.id;
     }
  
     public getAbsolutePositon(): XYLocation {

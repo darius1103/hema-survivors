@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { fromEvent, BehaviorSubject, distinct } from 'rxjs';
+import { fromEvent, BehaviorSubject, distinct, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Border } from './classes/border';
 import { Player } from './classes/player';
@@ -10,6 +10,9 @@ import { Enemy } from './classes/enemy';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
 import { DEBUG_MODE, MAX_ENEMIES, PIXEL_SIZE, SPRITE_SIZE, toggleDebugMode } from './utils/globals';
 import { Fighter } from './classes/fighter';
+import { EventsStreams } from './utils/events-streams';
+import { DeathEvent } from './utils/death-event';
+import { HitEvent } from './utils/hit-event';
 
 @Component({
   selector: 'app-game-window',
@@ -29,7 +32,7 @@ export class GameWindowComponent {
   private delay = 0; // 120 is about 1 frame per second :)
   private currentFrame = 0;
   private player: Player = null as any;
-  private enemies: Enemy[] = [];
+  private enemiesCount: number = 0;
   private border: Border = null as any;
   private controlKeys = 'wasd';
   private control$: BehaviorSubject<ControlStatus>;
@@ -40,12 +43,20 @@ export class GameWindowComponent {
   private requireTranslation: XYLocation = new XYLocation(0,0);
   private lastEnemySpawnTime = 0;
   private enemySpawnDelay = 2000;
+  private events$: EventsStreams;
+  private playerId: string;
   private hitAreas: Map<string, Map<string, Enemy>> = new Map<string, Map<string, Enemy>>();
 
   constructor (private spriteDrawing: SpriteDrawingService) {
+    this.events$ =  {
+      death: new Subject<DeathEvent>(),
+      hit: new Subject<HitEvent>()
+    }
+
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
     this.playerLocation$ = new BehaviorSubject<XYLocation>(this.innitialPlayerLocation);
-    this.player = new Player(this.innitialPlayerLocation, new Fighter());
+    this.playerId = this.randomId();
+    this.player = new Player(this.innitialPlayerLocation, new Fighter(), this.playerId, this.events$);
     
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
@@ -90,9 +101,6 @@ export class GameWindowComponent {
   }
 
   drawSpriteEnemy(): void {
-    // if (this.enemies.length <= 0) {
-    //   return;
-    // }
     const fighter = new Fighter();
     this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
   }
@@ -132,7 +140,23 @@ export class GameWindowComponent {
     this.drawBackground();
     this.drawPlayer();
     this.drawBorders();
+    this.listenToEvents();
     window.requestAnimationFrame(() => this.animate());
+  }
+
+  private listenToEvents(): void {
+    this.events$.death.subscribe((death: DeathEvent) => this.handleEnemyDeath(death));
+    this.events$.hit.subscribe((hit: HitEvent) => console.log(hit));
+  }
+
+  private handleEnemyDeath(death: DeathEvent): void {
+    if (death.id === this.playerId) {
+      console.log("You can't die like this...");
+      return;
+    }
+    console.log("Killing enemy");
+    this.deleteFromHitArea(death.id);
+    this.enemiesCount--;
   }
 
   private drawBackground(): void {
@@ -163,14 +187,22 @@ export class GameWindowComponent {
   }
 
   private drawEnemies(): void {
-    this.enemies.forEach(enemy => enemy.draw(this.domContext, this.enemyCanvas.nativeElement));
+    this.flatHitArea()
+      .forEach(enemy => enemy
+        .draw(this.domContext, this.enemyCanvas.nativeElement));
   }
 
   private moveEnemies(): void {
-    this.enemies.forEach((enemy)=> {
+    this.flatHitArea().forEach(enemy => {
       enemy.move(this.topLeftCorner, this.bottomRightCorner);
+      this.asignToHitArea(enemy);
     });
-    this.adjustHitAreas();
+  }
+
+  private flatHitArea(): Enemy[] {
+    const enemies: Enemy[] = [];
+    this.hitAreas.forEach(map => map.forEach(enemy => enemies.push(enemy)));
+    return enemies;
   }
 
   private playerAttack(): void {
@@ -181,52 +213,66 @@ export class GameWindowComponent {
   }
 
   private spawnEnemy(): void {
-    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemies.length >= MAX_ENEMIES) {
+    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemiesCount > MAX_ENEMIES) {
       return;
     }
     this.lastEnemySpawnTime = Date.now();
-
-    const playerLocation = this.playerLocation$.getValue();
-    const modifier1 = this.getRandomInt(2) === 0? -1 : 1;
-    const modifier2 = this.getRandomInt(2) === 0? -1 : 1;
-    const enemyLocation = {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2};
+    const enemyLocation = this.randomLocation();
     // const enemyLocation = {x: 50, y: 0};
-    const enemyId = this.lastEnemySpawnTime + "-" + this.getRandomInt(100);
+    const enemyId = this.randomId();
 
     const enemy = new Enemy(
       enemyLocation, 
       this.playerLocation$.asObservable(), 
       new Fighter(), 
-      enemyId);
-    this.enemies.push(enemy);
+      enemyId, 
+      this.events$);
+    this.enemiesCount++;
+    this.asignToHitArea(enemy);
   }
 
-  private adjustHitAreas(): void {
-    this.enemies.forEach((enemy: Enemy) => {
-      const enemyId = enemy.getId();
-      const enemyLocation = enemy.getAbsolutePositon();
-      const enemyOldLocation = enemy.getOldPositon();
-      const areaNewId = Math.floor(enemyLocation.x / 50) + "-" + Math.floor(enemyLocation.y / 50);
-      const areaOldId = Math.floor(enemyOldLocation.x / 50) + "-" + Math.floor(enemyOldLocation.y / 50);
-      if (areaNewId == areaOldId && this.hitAreas.size > 0) {
-        return;
+  private randomLocation(): XYLocation {
+    const playerLocation = this.playerLocation$.getValue();
+    const modifier1 = this.getRandomInt(2) === 0? -1 : 1;
+    const modifier2 = this.getRandomInt(2) === 0? -1 : 1;
+    return {x: playerLocation.x - this.HEIGHT / 2 * modifier1, y: playerLocation.y - this.HEIGHT / 2 * modifier2};
+  }
+
+  private randomId(): string {
+    return this.lastEnemySpawnTime + "-" + this.getRandomInt(100);
+  }
+
+  private asignToHitArea(enemy: Enemy): void {
+    const enemyId = enemy.getId();
+    const areaNewId = this.areaId(enemy.getAbsolutePositon())
+    const areaOldId = this.areaId(enemy.getOldPositon());
+    if (areaNewId == areaOldId && this.hitAreas.size > 0) {
+      return;
+    }
+    // Clean old
+    this.deleteFromHitArea(enemyId);
+
+    // Adjust new 
+    if (!this.hitAreas.has(areaNewId)) {
+      this.hitAreas.set(areaNewId, new Map<string, Enemy>());
+    }
+    const areaMap = this.hitAreas.get(areaNewId);
+    areaMap?.set(enemyId, enemy);
+  }
+
+  private deleteFromHitArea(enemyId: string): void {
+    let emptyMapsIds: string[] = [];
+    this.hitAreas.forEach((value: Map<string, Enemy>, key: string) => {
+      const deleted = value.delete(enemyId);
+      if (value.size === 0) {
+        emptyMapsIds.push(key);
       }
-      // Clean old
-      if (this.hitAreas.has(areaOldId)) {
-        const hitArea = this.hitAreas.get(areaOldId);
-        hitArea?.delete(enemyId);
-        if (hitArea?.size == 0) {
-          this.hitAreas.delete(areaOldId);
-        }
-      }
-  
-      // Adjust new 
-      if (!this.hitAreas.has(areaNewId)) {
-        this.hitAreas.set(areaNewId, new Map<string, Enemy>());
-      }
-      const areaMap = this.hitAreas.get(areaNewId);
-      areaMap?.set(enemyId, enemy);
     });
+    emptyMapsIds.forEach(key => this.hitAreas.delete(key));
+  }
+
+  private areaId(location: XYLocation): string {
+    return Math.floor(location.x / 50) + "-" + Math.floor(location.y / 50);
   }
 
   private getRandomInt(max: number): number {
