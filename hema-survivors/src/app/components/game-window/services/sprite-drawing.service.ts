@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Fighter } from '../classes/fighter';
 import { SpriteFrame } from '../classes/sprite-frame';
+import { TemporaryText } from '../classes/temporary-text';
 import { Box } from '../utils/box';
 import { codeToColor } from '../utils/colorLookUp';
 import { DEBUG_MODE, PIXEL_SIZE } from '../utils/globals';
@@ -73,6 +74,14 @@ export class SpriteDrawingService {
         (box.bottomR.x - box.topL.x),
         (box.bottomR.y - box.topL.y)
       );
+    });
+  }
+
+  public drawTexts(ctx: CanvasRenderingContext2D, temporaryTexts: TemporaryText[]): void {
+    temporaryTexts.forEach((text: TemporaryText) => {
+        ctx.font = text.getStyle();
+        ctx.fillStyle = text.getColor();
+        ctx.fillText(text.getMessage(), text.getLocation().x, text.getLocation().y);
     });
   }
 }

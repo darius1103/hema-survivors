@@ -13,6 +13,8 @@ import { Fighter } from './classes/fighter';
 import { EventsStreams } from './utils/events-streams';
 import { DeathEvent } from './utils/death-event';
 import { HitEvent } from './utils/hit-event';
+import { TemporaryElement } from './classes/temporary-element';
+import { TemporaryText } from './classes/temporary-text';
 
 @Component({
   selector: 'app-game-window',
@@ -46,6 +48,7 @@ export class GameWindowComponent {
   private events$: EventsStreams;
   private playerId: string;
   private hitAreas: Map<string, Map<string, Enemy>> = new Map<string, Map<string, Enemy>>();
+  private temporaryTexts: TemporaryText[] = [];
 
   constructor (private spriteDrawing: SpriteDrawingService) {
     this.events$ =  {
@@ -94,18 +97,18 @@ export class GameWindowComponent {
     window.requestAnimationFrame(() => this.animate());
   }
 
-  drawSpritePlayer(): void {
+  private drawSpritePlayer(): void {
     const fighter = this.player.getFighter();
     this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), fighter);
     this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), fighter.getSprite().frames[0], 0);
   }
 
-  drawSpriteEnemy(): void {
+  private drawSpriteEnemy(): void {
     const fighter = new Fighter();
     this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
   }
 
-  handleInput(event: any, type: string): void {
+  private handleInput(event: any, type: string): void {
     if (this.controlKeys.indexOf(event.key) < 0) {
       return;
     }
@@ -146,7 +149,7 @@ export class GameWindowComponent {
 
   private listenToEvents(): void {
     this.events$.death.subscribe((death: DeathEvent) => this.handleEnemyDeath(death));
-    this.events$.hit.subscribe((hit: HitEvent) => console.log(hit));
+    this.events$.hit.subscribe((hit: HitEvent) => this.handleEnemyHit(hit));
   }
 
   private handleEnemyDeath(death: DeathEvent): void {
@@ -157,6 +160,10 @@ export class GameWindowComponent {
     console.log("Killing enemy");
     this.deleteFromHitArea(death.id);
     this.enemiesCount--;
+  }
+
+  private handleEnemyHit(hit: HitEvent): void {
+    this.temporaryTexts.push(new TemporaryText(2000, hit.location, hit.text, "bold 16px Arial ", "white"));
   }
 
   private drawBackground(): void {
@@ -190,6 +197,11 @@ export class GameWindowComponent {
     this.flatHitArea()
       .forEach(enemy => enemy
         .draw(this.domContext, this.enemyCanvas.nativeElement));
+  }
+
+  private drawTemporaryElement(): void {
+    this.temporaryTexts = this.temporaryTexts.filter(text => !text.expired());
+    this.spriteDrawing.drawTexts(this.domContext, this.temporaryTexts);
   }
 
   private moveEnemies(): void {
@@ -295,6 +307,8 @@ export class GameWindowComponent {
       this.drawPlayer();
 
       this.playerAttack();
+
+      this.drawTemporaryElement();
 
       this.currentFrame = 0;
       if (!DEBUG_MODE) {

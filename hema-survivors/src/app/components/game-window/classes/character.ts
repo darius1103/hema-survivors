@@ -40,7 +40,10 @@ export class Character {
        const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition);
        console.log(gotHit ? "WE HAVE A HIT" :  "MISS");
        if (gotHit) {
-            this.events$.hit.next({text: damage.toString(), unit: this.figther});
+            this.events$.hit.next({
+                text: damage.toString(),
+                unit: this.figther,
+                location: this.getAbsolutePositon()});
             this.currentHealth -= damage;
             if (this.currentHealth <= 0) {
                 this.events$.death.next({
