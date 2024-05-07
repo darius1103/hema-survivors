@@ -22,6 +22,7 @@ export class Character {
     private maxHealth: number = 10;
     private currentHealth: number = 10;
     private events$: EventsStreams;
+    private facingRight: boolean = true;
 
     constructor(innitialLocation: XYLocation, fighter: Fighter, id: string, events$: EventsStreams) {
         this.id = id;
@@ -36,8 +37,12 @@ export class Character {
         return this.figther;
     }
 
+    public getFacingRight(): boolean {
+        return this.facingRight;
+    }
+
     public attemptAttack(attackBoxes: Box[], damage: number): void {
-       const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition);
+       const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition, this.facingRight);
        if (gotHit) {
             this.events$.hit.next({
                 text: damage.toString(),
@@ -100,6 +105,8 @@ export class Character {
         deltaX *= this.speed;
         deltaY *= this.speed;
 
+        this.facingRight = deltaX === 0 ? this.facingRight : deltaX >= 0;
+
         this.adjustIfInBounds(topLeftCorner, bottomRightCorner, deltaX, deltaY);
         return this.oldAbsolutePosition;
     }
@@ -126,7 +133,8 @@ export class Character {
         this.absolutePosition.y = adjustedY;
     }
 
-    public draw(targetCtx: CanvasRenderingContext2D, sourceCtx: HTMLCanvasElement): void {
+    public draw(targetCtx: CanvasRenderingContext2D, sourceCtxRTL: HTMLCanvasElement, sourceCtxLTR: HTMLCanvasElement): void {
+        const sourceCtx = this.facingRight ? sourceCtxRTL : sourceCtxLTR;
         const x = Math.round(this.absolutePosition.x - sourceCtx.width/2);
         const y = Math.round(this.absolutePosition.y - sourceCtx.height/2);
         targetCtx.drawImage(sourceCtx, x, y, sourceCtx.width, sourceCtx.height);

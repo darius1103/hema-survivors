@@ -13,12 +13,12 @@ export class SpriteDrawingService {
 
   constructor() { }
 
-  public draw(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
-    const sprite = fighter.getSprite();
+  public draw(ctx: CanvasRenderingContext2D, fighter: Fighter, rtl: boolean = true): void {
+    const sprite = rtl ? fighter.getSpriteRTL(): fighter.getSpriteLTR();
     for (let i = 0; i < sprite.frames.length; i++) {
       this.drawFrame(ctx, sprite.frames[i], i);   
     }
-    this.drawHitBoxes(ctx, fighter);
+    this.drawHitBoxes(ctx, fighter, rtl);
   }
 
   private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame, offset: number = 0): void {
@@ -59,9 +59,9 @@ export class SpriteDrawingService {
     });
   }
 
-  private drawHitBoxes(ctx: CanvasRenderingContext2D, fighter: Fighter): void {
-    this.drawBoxes(ctx,fighter.getHitBoxes(), "black");
-    this.drawBoxes(ctx,fighter.getAttackBoxes(), "red");
+  private drawHitBoxes(ctx: CanvasRenderingContext2D, fighter: Fighter, rtl: boolean = true): void {
+    this.drawBoxes(ctx, rtl ? fighter.getHitBoxesRTL() : fighter.getHitBoxesLTR(), "black");
+    this.drawBoxes(ctx, rtl ? fighter.getAttackBoxesRTL() : fighter.getAttackBoxesLTR() , "red");
   }
 
   public drawBoxes(ctx: CanvasRenderingContext2D, boxes: Box[], style: string): void {

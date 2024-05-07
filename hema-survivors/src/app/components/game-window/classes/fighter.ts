@@ -27,9 +27,12 @@ export class Fighter{
     public arms: Arm[] = [new MainHand(this.weapon), new OffHand()];
     public torso: Torso = new Torso(this.settings);
     public waist: Waist = new Waist(this.settings);
-    public sprite: Sprite = null as any;
-    public hitBoxes: Box[] = [];
-    private attackBox: Box[] = [];
+    public spriteRTL: Sprite = null as any;
+    public spriteLTR: Sprite = null as any;
+    public hitBoxesRTL: Box[] = [];
+    public hitBoxesLTR: Box[] = [];
+    private attackBoxRTL: Box[] = [];
+    private attackBoxLTR: Box[] = [];
     private adjustedAttackBox: Box[] = [];
     private adjustedHitBoxes: Box[] = [];
     private lastAttack: number = 0;
@@ -39,7 +42,7 @@ export class Fighter{
         this.defineSprite();
     }
 
-    public attack(hitAreas: Map<string, Map<string, Enemy>>, ownLocation: XYLocation): void {
+    public attack(hitAreas: Map<string, Map<string, Enemy>>, ownLocation: XYLocation, facingRight: boolean = true): void {
         if (Date.now() - this.lastAttack < this.attackDelay) {
             return;
         }
@@ -56,14 +59,14 @@ export class Fighter{
             return;
         }
         console.log("Enemies in range: " + enemiesInRange.length);
-        this.adjustedAttackBox = this.mapBoxesToAbsolute(this.attackBox, ownLocation);
+        this.adjustedAttackBox = this.mapBoxesToAbsolute(facingRight ? this.attackBoxRTL :  this.attackBoxLTR, ownLocation);
         enemiesInRange
             .forEach((enemy: any) => (enemy as Enemy)
                 .attemptAttack(this.adjustedAttackBox, 4));
     }
 
-    public attemptAttack(attackBoxes: Box[], damage: number, location: XYLocation): boolean {
-        this.adjustedHitBoxes = this.mapBoxesToAbsolute(this.hitBoxes, location);
+    public attemptAttack(attackBoxes: Box[], damage: number, location: XYLocation, facingRight: boolean = true): boolean {
+        this.adjustedHitBoxes = this.mapBoxesToAbsolute(this.hitBoxesRTL, location);
         return this.adjustedHitBoxes
             .some((box) => this.checkColision(box, attackBoxes));
     }
@@ -113,8 +116,12 @@ export class Fighter{
         return areas;
     }
 
-    public getAttackBoxes(): Box[] {
-        return this.attackBox;
+    public getAttackBoxesRTL(): Box[] {
+        return this.attackBoxRTL;
+    }
+
+    public getAttackBoxesLTR(): Box[] {
+        return this.attackBoxLTR;
     }
 
     public defineSprite(): void {
@@ -143,18 +150,51 @@ export class Fighter{
                 this.relativeToChest(this.torso.armAnchorPoints[index], 0),
                 0
             );
-            this.attackBox = this.attackBox.concat((arm.getWeapon() ? arm.getWeapon()?.getAttackBox() : []) as any);
+            this.attackBoxRTL = this.attackBoxRTL.concat((arm.getWeapon() ? arm.getWeapon()?.getAttackBox() : []) as any);
         });
-        this.sprite = new Sprite([new SpriteFrame(frameData)]);
+        this.spriteRTL = new Sprite([new SpriteFrame(frameData)]);
+        this.spriteLTR = new Sprite([new SpriteFrame(this.flipFrameData(frameData))]);
+        this.getRTLBoxes();
         // this.hitBoxes = [{topL: new XYLocation(1, 1), bottomR: new XYLocation((SPRITE_SIZE * PIXEL_SIZE), (SPRITE_SIZE * PIXEL_SIZE))}];
     }
-
-    public getSprite(): Sprite {
-        return this.sprite;
+    
+    public getSpriteRTL(): Sprite {
+        return this.spriteRTL;
     }
 
-    public getHitBoxes(): Box[] {
-        return this.hitBoxes;
+    public getSpriteLTR(): Sprite {
+        return this.spriteLTR;
+    }
+
+    public getHitBoxesRTL(): Box[] {
+        return this.hitBoxesRTL;
+    }
+
+    public getHitBoxesLTR(): Box[] {
+        return this.hitBoxesLTR;
+    }
+
+    private flipFrameData(data:  number[][]):  number[][]{
+        const fliped: number[][] = [];
+        data.forEach(row => fliped.push(row.slice().reverse()));
+        return fliped;
+    }
+
+    private getRTLBoxes(): void {
+        this.hitBoxesLTR = [];
+        this.hitBoxesRTL.forEach(hitBox => {
+            const topL = {x: SPRITE_SIZE * PIXEL_SIZE - hitBox.bottomR.x, y: hitBox.topL.y}; 
+            const bottomR = {x: SPRITE_SIZE * PIXEL_SIZE - hitBox.topL.x, y: hitBox.bottomR.y};
+            this.hitBoxesLTR.push({topL, bottomR});
+        });
+
+        this.attackBoxLTR = [];
+        this.attackBoxRTL.forEach(attackBox => {
+            const topL = {x: SPRITE_SIZE * PIXEL_SIZE - attackBox.bottomR.x, y: attackBox.topL.y}; 
+            const bottomR = {x: SPRITE_SIZE * PIXEL_SIZE - attackBox.topL.x, y: attackBox.bottomR.y};
+            this.attackBoxLTR.push({topL, bottomR});
+        });
+        
     }
 
     private appendBodyPart(frameData: number[][], bodyPart: BodyPart, anchorPoint: XYLocation, index: number): number[][] {
@@ -178,7 +218,7 @@ export class Fighter{
         });
         const topL = new XYLocation(deviationY * PIXEL_SIZE, deviationX * PIXEL_SIZE);
         const bottomR = new XYLocation(maxX * PIXEL_SIZE, maxY * PIXEL_SIZE);
-        this.hitBoxes.push({topL, bottomR});
+        this.hitBoxesRTL.push({topL, bottomR});
         return frameData;
     }
 

@@ -24,8 +24,10 @@ import { TemporaryText } from './classes/temporary-text';
 })
 export class GameWindowComponent {
   @ViewChild('canvas') canvas: any = null;
-  @ViewChild('heroCanvas') heroCanvas: any = null;
-  @ViewChild('enemyCanvas') enemyCanvas: any = null;
+  @ViewChild('heroCanvasLTR') heroCanvasLTR: any = null;
+  @ViewChild('heroCanvasRTL') heroCanvasRTL: any = null;
+  @ViewChild('enemyCanvasLTR') enemyCanvasLTR: any = null;
+  @ViewChild('enemyCanvasRTL') enemyCanvasRTL: any = null;
   @ViewChild('debug') debugCanvas: any = null;
   private WIDTH = 500;
   private HEIGHT = 500;
@@ -74,17 +76,21 @@ export class GameWindowComponent {
   }
 
   ngAfterViewInit() {
-    if (this.canvas == null || this.heroCanvas == null || this.enemyCanvas == null) {
+    if (this.canvas == null || this.heroCanvasLTR == null || this.enemyCanvasLTR == null) {
         console.log('null canvases...')
         return;
     }
 
     this.canvas.nativeElement.width = this.WIDTH;
     this.canvas.nativeElement.height = this.HEIGHT;
-    this.enemyCanvas.nativeElement.width = PIXEL_SIZE * SPRITE_SIZE;
-    this.enemyCanvas.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
-    this.heroCanvas.nativeElement.width =  PIXEL_SIZE * SPRITE_SIZE;
-    this.heroCanvas.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
+    this.enemyCanvasLTR.nativeElement.width = PIXEL_SIZE * SPRITE_SIZE;
+    this.enemyCanvasLTR.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
+    this.heroCanvasLTR.nativeElement.width =  PIXEL_SIZE * SPRITE_SIZE;
+    this.heroCanvasLTR.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
+    this.enemyCanvasRTL.nativeElement.width = PIXEL_SIZE * SPRITE_SIZE;
+    this.enemyCanvasRTL.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
+    this.heroCanvasRTL.nativeElement.width =  PIXEL_SIZE * SPRITE_SIZE;
+    this.heroCanvasRTL.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
     this.debugCanvas.nativeElement.width =  14 * SPRITE_SIZE;
     this.debugCanvas.nativeElement.height = 14 * SPRITE_SIZE;
 
@@ -100,13 +106,15 @@ export class GameWindowComponent {
 
   private drawSpritePlayer(): void {
     const fighter = this.player.getFighter();
-    this.spriteDrawing.draw(this.heroCanvas.nativeElement.getContext("2d"), fighter);
-    this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), fighter.getSprite().frames[0], 0);
+    this.spriteDrawing.draw(this.heroCanvasLTR.nativeElement.getContext("2d"), fighter, true);
+    this.spriteDrawing.draw(this.heroCanvasRTL.nativeElement.getContext("2d"), fighter, false);
+    this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), fighter.getSpriteLTR().frames[0], 0);
   }
 
   private drawSpriteEnemy(): void {
     const fighter = new Fighter();
-    this.spriteDrawing.draw(this.enemyCanvas.nativeElement.getContext("2d"), fighter);
+    this.spriteDrawing.draw(this.enemyCanvasLTR.nativeElement.getContext("2d"), fighter, true);
+    this.spriteDrawing.draw(this.enemyCanvasRTL.nativeElement.getContext("2d"), fighter, false);
   }
 
   private handleInput(event: any, type: string): void {
@@ -190,7 +198,7 @@ export class GameWindowComponent {
   }
 
   private drawPlayer(): void {
-    this.player.draw(this.domContext, this.heroCanvas.nativeElement);
+    this.player.draw(this.domContext, this.heroCanvasLTR.nativeElement, this.heroCanvasRTL.nativeElement);
   }
 
   private drawBorders(): void {
@@ -200,7 +208,7 @@ export class GameWindowComponent {
   private drawEnemies(): void {
     this.flatHitArea()
       .forEach(enemy => enemy
-        .draw(this.domContext, this.enemyCanvas.nativeElement));
+        .draw(this.domContext, this.enemyCanvasLTR.nativeElement, this.enemyCanvasRTL.nativeElement));
   }
 
   private drawTemporaryElement(): void {
@@ -223,13 +231,13 @@ export class GameWindowComponent {
 
   private playerAttack(): void {
     const fighter = this.player.getFighter();
-    fighter.attack(this.hitAreas, this.player.getAbsolutePositon());
+    fighter.attack(this.hitAreas, this.player.getAbsolutePositon(), this.player.getFacingRight());
     this.spriteDrawing.drawBoxes(this.domContext, fighter.getAdjustedAttackBox(), "green");
     this.spriteDrawing.drawBoxes(this.domContext, fighter.getAdjustedHitBoxes(), "blue");
   }
 
   private spawnEnemy(): void {
-    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemiesCount > MAX_ENEMIES) {
+    if (Date.now() - this.lastEnemySpawnTime < this.enemySpawnDelay || this.enemiesCount >= MAX_ENEMIES) {
       return;
     }
     this.lastEnemySpawnTime = Date.now();
