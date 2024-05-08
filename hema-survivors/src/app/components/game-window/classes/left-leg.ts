@@ -1,5 +1,5 @@
 import { Leg } from "./leg";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
@@ -28,6 +28,6 @@ export class LeftLeg extends Leg {
         ];
         this.anchorPoints = [new XYLocation(0, 0)];
         const frame = new SpriteFrame(data);
-        this.sprite =  new Sprite([frame]);
+        this.sprite =  new SpriteV1([frame]);
     }
 }

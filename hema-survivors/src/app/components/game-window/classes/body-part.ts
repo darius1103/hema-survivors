@@ -1,21 +1,21 @@
 import { combineAll, range } from "rxjs";
-import { AppendCommand } from "../utils/appendCommand";
+import { AppendCommandV1 } from "../utils/appendCommand";
 import { colorToCode } from "../utils/colorLookUp";
 import { FighterSettings } from "../utils/fitherSettings";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { XYLocation } from "./xylocation";
 
 export class BodyPart {
     protected settings: FighterSettings | null;
     protected data: number[][] =  null as any;
-    protected sprite: Sprite = new Sprite([]);
+    protected sprite: SpriteV1 = new SpriteV1([]);
     protected anchorPoints: XYLocation[] = [];
 
     constructor(settings: FighterSettings | null = null) {
         this.settings = settings;
     }
 
-    public getSprite(): Sprite {
+    public getSprite(): SpriteV1 {
         return this.sprite;
     }
 
@@ -23,7 +23,7 @@ export class BodyPart {
         return this.anchorPoints;
     }
     
-    public appendBodyPart(command: AppendCommand): number[][] {
+    public appendBodyPart(command: AppendCommandV1): number[][] {
         let deviationX = command.anchorPoint.x - command.innerAnchorPoint.x;
         let deviationY = command.anchorPoint.y - command.innerAnchorPoint.y;
 
@@ -63,7 +63,7 @@ export class BodyPart {
     public adjustDataForTheme(): number[][] {
         // 0 transparent
         // 1 primary color
-        // 4 secondary color
+        // 2 secondary color
         // 3 third color
         // 4 black
         return this.data.map(row => row.map(value => this.adjustForTheme(value)))

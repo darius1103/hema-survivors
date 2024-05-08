@@ -1,19 +1,19 @@
 import { range } from "rxjs";
 import { PIXEL_SIZE, SPRITE_SIZE } from "../utils/globals";
-import { Arm } from "./arm";
+import { ArmV1 } from "./arm";
 import { BodyPart } from "./body-part";
 import { Torso } from "./torso";
-import { Head } from "./head";
+import { HeadV1 } from "./head";
 import { MainHand } from "./main-hand";
-import { Weapon } from "./main-weapon";
+import { WeaponV1 } from "./main-weapon";
 import { OffHand } from "./off-hand";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { Waist } from "./waist";
 import { XYLocation } from "./xylocation";
 import { FighterSettings } from "../utils/fitherSettings";
 import { Color } from "../utils/color";
-import { Box } from "../utils/box";
+import { BoxV1 } from "../utils/box";
 import { Enemy } from "./enemy";
 
 export class Fighter{
@@ -22,19 +22,19 @@ export class Fighter{
         secondaryColor: Color.RED,
         thirdColor: Color.AROS_GREEN
     }
-    public head: Head = new Head();
-    public weapon: Weapon = new Weapon();
-    public arms: Arm[] = [new MainHand(this.weapon), new OffHand()];
+    public head: HeadV1 = new HeadV1();
+    public weapon: WeaponV1 = new WeaponV1();
+    public arms: ArmV1[] = [new MainHand(this.weapon), new OffHand()];
     public torso: Torso = new Torso(this.settings);
     public waist: Waist = new Waist(this.settings);
-    public spriteRTL: Sprite = null as any;
-    public spriteLTR: Sprite = null as any;
-    public hitBoxesRTL: Box[] = [];
-    public hitBoxesLTR: Box[] = [];
-    private attackBoxRTL: Box[] = [];
-    private attackBoxLTR: Box[] = [];
-    private adjustedAttackBox: Box[] = [];
-    private adjustedHitBoxes: Box[] = [];
+    public spriteRTL: SpriteV1 = null as any;
+    public spriteLTR: SpriteV1 = null as any;
+    public hitBoxesRTL: BoxV1[] = [];
+    public hitBoxesLTR: BoxV1[] = [];
+    private attackBoxRTL: BoxV1[] = [];
+    private attackBoxLTR: BoxV1[] = [];
+    private adjustedAttackBox: BoxV1[] = [];
+    private adjustedHitBoxes: BoxV1[] = [];
     private lastAttack: number = 0;
     private attackDelay: number = 2000;
 
@@ -65,13 +65,13 @@ export class Fighter{
                 .attemptAttack(this.adjustedAttackBox, 4));
     }
 
-    public attemptAttack(attackBoxes: Box[], damage: number, location: XYLocation, facingRight: boolean = true): boolean {
+    public attemptAttack(attackBoxes: BoxV1[], damage: number, location: XYLocation, facingRight: boolean = true): boolean {
         this.adjustedHitBoxes = this.mapBoxesToAbsolute(this.hitBoxesRTL, location);
         return this.adjustedHitBoxes
             .some((box) => this.checkColision(box, attackBoxes));
     }
 
-    public checkColision(box1: Box, boxes: Box[]): boolean {
+    public checkColision(box1: BoxV1, boxes: BoxV1[]): boolean {
         return boxes.some((box2) => {
             // no horizontal overlap
             if (box1.topL.x >= box2.bottomR.x || box2.topL.x >= box1.bottomR.x) return false;
@@ -83,19 +83,19 @@ export class Fighter{
         });
     }
 
-    public getAdjustedAttackBox(): Box[] {
+    public getAdjustedAttackBox(): BoxV1[] {
         return this.adjustedAttackBox;
     }
 
-    public getAdjustedHitBoxes(): Box[] {
+    public getAdjustedHitBoxes(): BoxV1[] {
         return this.adjustedHitBoxes;
     }
 
-    private mapBoxesToAbsolute(boxes: Box[], location: XYLocation): Box[] {
+    private mapBoxesToAbsolute(boxes: BoxV1[], location: XYLocation): BoxV1[] {
         return boxes.map(box => this.mapBoxToAbsolute(box, location));
     }
 
-    private mapBoxToAbsolute(box: Box, location: XYLocation): Box {
+    private mapBoxToAbsolute(box: BoxV1, location: XYLocation): BoxV1 {
         const x1 = location.x - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.topL.x;
         const y1 = location.y - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.topL.y;
         const x2 = location.x - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.bottomR.x;
@@ -116,11 +116,11 @@ export class Fighter{
         return areas;
     }
 
-    public getAttackBoxesRTL(): Box[] {
+    public getAttackBoxesRTL(): BoxV1[] {
         return this.attackBoxRTL;
     }
 
-    public getAttackBoxesLTR(): Box[] {
+    public getAttackBoxesLTR(): BoxV1[] {
         return this.attackBoxLTR;
     }
 
@@ -143,7 +143,7 @@ export class Fighter{
             this.relativeToChest(this.torso.headAnchorPoint, 0),
             0
         );
-        this.arms.forEach((arm: Arm, index: number) => {
+        this.arms.forEach((arm: ArmV1, index: number) => {
             frameData = this.appendBodyPart(
                 frameData,
                 arm,
@@ -152,25 +152,25 @@ export class Fighter{
             );
             this.attackBoxRTL = this.attackBoxRTL.concat((arm.getWeapon() ? arm.getWeapon()?.getAttackBox() : []) as any);
         });
-        this.spriteRTL = new Sprite([new SpriteFrame(frameData)]);
-        this.spriteLTR = new Sprite([new SpriteFrame(this.flipFrameData(frameData))]);
+        this.spriteRTL = new SpriteV1([new SpriteFrame(frameData)]);
+        this.spriteLTR = new SpriteV1([new SpriteFrame(this.flipFrameData(frameData))]);
         this.getRTLBoxes();
         // this.hitBoxes = [{topL: new XYLocation(1, 1), bottomR: new XYLocation((SPRITE_SIZE * PIXEL_SIZE), (SPRITE_SIZE * PIXEL_SIZE))}];
     }
     
-    public getSpriteRTL(): Sprite {
+    public getSpriteRTL(): SpriteV1 {
         return this.spriteRTL;
     }
 
-    public getSpriteLTR(): Sprite {
+    public getSpriteLTR(): SpriteV1 {
         return this.spriteLTR;
     }
 
-    public getHitBoxesRTL(): Box[] {
+    public getHitBoxesRTL(): BoxV1[] {
         return this.hitBoxesRTL;
     }
 
-    public getHitBoxesLTR(): Box[] {
+    public getHitBoxesLTR(): BoxV1[] {
         return this.hitBoxesLTR;
     }
 

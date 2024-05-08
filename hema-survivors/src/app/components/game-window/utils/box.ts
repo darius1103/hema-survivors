@@ -1,6 +1,6 @@
 import { XYLocation } from "../classes/xylocation";
 
-export interface Box {
+export interface BoxV1 {
     topL: XYLocation,
     bottomR: XYLocation,
 }

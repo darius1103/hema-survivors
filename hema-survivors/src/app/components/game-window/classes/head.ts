@@ -1,9 +1,9 @@
 import { BodyPart } from "./body-part";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
-export class Head extends BodyPart {
+export class HeadV1 extends BodyPart {
     protected helmet: boolean = true;
     protected helmetAnchor: XYLocation = null as any;
     protected helmetOverlay: number[][] = null as any;
@@ -42,7 +42,7 @@ export class Head extends BodyPart {
         this.data = this.addHelmet();
 
         const frame = new SpriteFrame(this.data);
-        this.sprite =  new Sprite([frame]);
+        this.sprite =  new SpriteV1([frame]);
     }
 
     public addHelmet(): number[][] {

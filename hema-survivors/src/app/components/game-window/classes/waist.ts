@@ -3,7 +3,7 @@ import { BodyPart } from "./body-part";
 import { LeftLeg } from "./left-leg";
 import { Leg } from "./leg";
 import { RightLeg } from "./right-leg";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
@@ -38,6 +38,6 @@ export class Waist extends BodyPart {
             });
         this.anchorPoints = [new XYLocation(1, this.data[0].length / 2 )];
         const frame = new SpriteFrame(this.data);
-        this.sprite =  new Sprite([frame]);
+        this.sprite =  new SpriteV1([frame]);
     }
 }

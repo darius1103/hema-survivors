@@ -1,5 +1,5 @@
 import { BodyPart } from "./body-part";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
@@ -15,6 +15,6 @@ export class Leg extends BodyPart {
     public defineSprite(): void {
         this.anchorPoints = [new XYLocation(0, 6)];
         const frame = new SpriteFrame([[]]);
-        this.sprite =  new Sprite([frame]);
+        this.sprite =  new SpriteV1([frame]);
     }
 }

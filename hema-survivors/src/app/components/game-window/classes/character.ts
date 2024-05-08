@@ -1,11 +1,11 @@
 import { Observable } from "rxjs";
-import { Box } from "../utils/box";
+import { BoxV1 } from "../utils/box";
 import { ControlStatus } from "../utils/control-status";
 import { EventsStreams } from "../utils/events-streams";
 import { PIXEL_SIZE } from "../utils/globals";
 import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
 import { Fighter } from "./fighter";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
@@ -18,7 +18,7 @@ export class Character {
     public width: number = 0;
     public height: number = 0;
     private speed: number = 1;
-    private sprite: Sprite = new Sprite([]);
+    private sprite: SpriteV1 = new SpriteV1([]);
     private maxHealth: number = 10;
     private currentHealth: number = 10;
     private events$: EventsStreams;
@@ -41,7 +41,7 @@ export class Character {
         return this.facingRight;
     }
 
-    public attemptAttack(attackBoxes: Box[], damage: number): void {
+    public attemptAttack(attackBoxes: BoxV1[], damage: number): void {
        const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition, this.facingRight);
        if (gotHit) {
             this.events$.hit.next({
@@ -70,12 +70,12 @@ export class Character {
     }
     
     private defineSprinte(): void {
-        this.sprite = new Sprite([new SpriteFrame(FRAME_ONE), new SpriteFrame(FRAME_TWO)]);
+        this.sprite = new SpriteV1([new SpriteFrame(FRAME_ONE), new SpriteFrame(FRAME_TWO)]);
         this.height = FRAME_ONE.length * PIXEL_SIZE;
         this.width = FRAME_ONE[0].length * PIXEL_SIZE;
     }
 
-    public getSprite(): Sprite {
+    public getSprite(): SpriteV1 {
         return this.sprite;
     }
 

@@ -1,6 +1,6 @@
 import { XYLocation } from "../classes/xylocation";
 
-export interface AppendCommand {
+export interface AppendCommandV1 {
     targetFrameData: number[][], 
     sourceFrameData: number[][],
     anchorPoint: XYLocation,

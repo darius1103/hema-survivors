@@ -1,10 +1,10 @@
-import { Arm } from "./arm";
-import { Weapon } from "./main-weapon";
+import { ArmV1 } from "./arm";
+import { WeaponV1 } from "./main-weapon";
 import { XYLocation } from "./xylocation";
 
-export class OffHand extends Arm {
+export class OffHand extends ArmV1 {
 
-    constructor(weapon: Weapon | null = null) {
+    constructor(weapon: WeaponV1 | null = null) {
         super(weapon);
     }
 

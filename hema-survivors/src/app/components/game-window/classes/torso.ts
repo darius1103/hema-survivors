@@ -1,6 +1,6 @@
 import { FighterSettings } from "../utils/fitherSettings";
 import { BodyPart } from "./body-part";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
@@ -77,6 +77,6 @@ export class Torso extends BodyPart {
             this.crossDecalOverlay) : this.data;
         this.data = this.adjustDataForTheme();
         const frame = new SpriteFrame(this.data);
-        this.sprite =  new Sprite([frame]);
+        this.sprite =  new SpriteV1([frame]);
     }
 }

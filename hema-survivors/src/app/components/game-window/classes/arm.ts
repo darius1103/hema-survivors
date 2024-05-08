@@ -1,10 +1,10 @@
 import { BodyPart } from "./body-part";
-import { Weapon } from "./main-weapon";
-import { Sprite } from "./sprite";
+import { WeaponV1 } from "./main-weapon";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
-export class Arm extends BodyPart {
+export class ArmV1 extends BodyPart {
     protected weaponAnchorPoints: XYLocation[] = [];
 
     protected gloves: boolean = true;
@@ -23,9 +23,9 @@ export class Arm extends BodyPart {
     protected guardAnchor: XYLocation = null as any;
     protected guardOverlay: number[][] = null as any;
 
-    protected weapon: Weapon | null = null;
+    protected weapon: WeaponV1 | null = null;
     
-    constructor(weapon: Weapon | null = null) {
+    constructor(weapon: WeaponV1 | null = null) {
         super();
         // this.gloves = Math.floor(Math.random() * 100) % 2 == 0;
         // this.sleave = Math.floor(Math.random() * 100) % 2 == 0;
@@ -37,7 +37,7 @@ export class Arm extends BodyPart {
         this.defineSprite();
     }
     
-    public getWeapon(): Weapon | null {
+    public getWeapon(): WeaponV1 | null {
         return this.weapon;
     }
     
@@ -57,7 +57,7 @@ export class Arm extends BodyPart {
         this.data = this.addGloves();
         this.data = this.addWeapon();
         const frame = new SpriteFrame(this.data);
-        this.sprite =  new Sprite([frame]);
+        this.sprite =  new SpriteV1([frame]);
     }
 
     public addGloves(): number[][] {

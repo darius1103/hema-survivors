@@ -1,12 +1,12 @@
-import { Box } from "../utils/box";
+import { BoxV1 } from "../utils/box";
 import { PIXEL_SIZE, SPRITE_SIZE } from "../utils/globals";
 import { BodyPart } from "./body-part";
-import { Sprite } from "./sprite";
+import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
 import { XYLocation } from "./xylocation";
 
-export class Weapon extends BodyPart {
-    private attackBox: Box[] = [];
+export class WeaponV1 extends BodyPart {
+    private attackBox: BoxV1[] = [];
     constructor() {
         super();
         this.defineSprite();
@@ -53,10 +53,10 @@ export class Weapon extends BodyPart {
         this.attackBox.push({topL: new XYLocation((SPRITE_SIZE * PIXEL_SIZE) / 2, 2), bottomR:  new XYLocation((SPRITE_SIZE * PIXEL_SIZE) / 4 * 3, (SPRITE_SIZE * PIXEL_SIZE) / 4)});
         // this.attackBox = [{topL: new XYLocation((SPRITE_SIZE * PIXEL_SIZE) / 2, 1), bottomR:  new XYLocation((SPRITE_SIZE * PIXEL_SIZE) - 1, (SPRITE_SIZE * PIXEL_SIZE) - 1)}];
         const frame = new SpriteFrame(data);
-        this.sprite =  new Sprite([frame]);
+        this.sprite =  new SpriteV1([frame]);
     }
 
-    public getAttackBox(): Box[] {
+    public getAttackBox(): BoxV1[] {
         return this.attackBox;
     }
 }

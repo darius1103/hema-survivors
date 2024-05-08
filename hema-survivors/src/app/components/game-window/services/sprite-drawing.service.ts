@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
+import { Box } from '../classes/common/box';
+import { Character } from '../classes/display/characters/character';
+import { PLAYER } from '../classes/display/characters/characters';
 import { Fighter } from '../classes/fighter';
 import { SpriteFrame } from '../classes/sprite-frame';
 import { TemporaryText } from '../classes/temporary-text';
-import { Box } from '../utils/box';
+import { BoxV1 } from '../utils/box';
 import { codeToColor } from '../utils/colorLookUp';
-import { DEBUG_MODE, PIXEL_SIZE } from '../utils/globals';
+import { DEBUG_MODE, PIXEL_SIZE, SPRITE_HELPER } from '../utils/globals';
 
 @Injectable({
   providedIn: 'root'
@@ -13,19 +16,17 @@ export class SpriteDrawingService {
 
   constructor() { }
 
-  public draw(ctx: CanvasRenderingContext2D, fighter: Fighter, rtl: boolean = true): void {
-    const sprite = rtl ? fighter.getSpriteRTL(): fighter.getSpriteLTR();
-    for (let i = 0; i < sprite.frames.length; i++) {
-      this.drawFrame(ctx, sprite.frames[i], i);   
-    }
-    this.drawHitBoxes(ctx, fighter, rtl);
+  public draw(ctx: CanvasRenderingContext2D, character: Character, rtl: boolean = true): void {
+    const combinedData = character.getSprite().getCombinedData(rtl, character.getConfig());
+    this.drawFrame(ctx, SPRITE_HELPER.centerData(combinedData.data));
+    this.drawBoxes(ctx, SPRITE_HELPER.centerBoxesH(combinedData.boxes), "black");
   }
 
-  private drawFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame, offset: number = 0): void {
-    const frameHeight = frame.data.length * PIXEL_SIZE;
-    const frameWidth = frame.data[0].length * PIXEL_SIZE;
-    for (let i: number = 0; i < frame.data.length; i++) {
-      const frameRow = frame.data[i]
+  private drawFrame(ctx: CanvasRenderingContext2D, data: number[][], offset: number = 0): void {
+    const frameHeight = data.length * PIXEL_SIZE;
+    const frameWidth = data[0].length * PIXEL_SIZE;
+    for (let i: number = 0; i < data.length; i++) {
+      const frameRow = data[i] ? data[i] : [];
       for (let j: number = 0; j < frameRow.length; j++) {
         if (!codeToColor.has(frameRow[j])) {
             ctx.fillStyle = "rgba(233, 233, 233, 0)";
@@ -49,22 +50,45 @@ export class SpriteDrawingService {
     }
   }
 
-  public writeFrame(ctx: CanvasRenderingContext2D, frame: SpriteFrame, offset: number = 0): void {
-    frame.data.forEach((row: number[], rowIndex: number) => {
+  public writeFrame(ctx: CanvasRenderingContext2D, ltr: boolean): void {
+    const combinedData = PLAYER.getSprite().getCombinedData(ltr, PLAYER.getConfig());
+    combinedData.data.forEach((row: number[], rowIndex: number) => {
       row.forEach((value: number, columnIndex: number) => {
-          ctx.font = value ? "12px Arial" : "4px Arial";
-          ctx.fillStyle = codeToColor.get(frame.data[rowIndex][columnIndex]) ? codeToColor.get(frame.data[rowIndex][columnIndex]) as any : "black";
-          ctx.fillText(value.toString(), 10 * (columnIndex + 1), 10 * (rowIndex + 1));
+        ctx.font = value ? "12px Arial" : "4px Arial";
+        ctx.fillStyle = codeToColor.get(row[columnIndex]) ? codeToColor.get(row[columnIndex]) as any : "black";
+        ctx.fillText(value.toString(), 10 * (columnIndex + 1), 10 * (rowIndex + 1));
       });
     });
-  }
-
-  private drawHitBoxes(ctx: CanvasRenderingContext2D, fighter: Fighter, rtl: boolean = true): void {
-    this.drawBoxes(ctx, rtl ? fighter.getHitBoxesRTL() : fighter.getHitBoxesLTR(), "black");
-    this.drawBoxes(ctx, rtl ? fighter.getAttackBoxesRTL() : fighter.getAttackBoxesLTR() , "red");
+    this.drawBoxesWrite(ctx, combinedData.boxes, "black");
   }
 
   public drawBoxes(ctx: CanvasRenderingContext2D, boxes: Box[], style: string): void {
+    boxes.forEach((box) => {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = style;
+      ctx.strokeRect(
+        10 + box.p1.x * PIXEL_SIZE, 
+        1 + box.p1.y * PIXEL_SIZE, 
+        (box.p2.x - box.p1.x + 1) * PIXEL_SIZE,
+        (box.p2.y - box.p1.y + 1) * PIXEL_SIZE
+      );
+    });
+  }
+
+  public drawBoxesWrite(ctx: CanvasRenderingContext2D, boxes: Box[], style: string): void {
+    boxes.forEach((box) => {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = style;
+      ctx.strokeRect(
+        10 + box.p1.x * 10, 
+        1 + box.p1.y * 10, 
+        (box.p2.x - box.p1.x + 1) * 10,
+        (box.p2.y - box.p1.y + 1) * 10
+      );
+    });
+  }
+
+  public drawBoxesV1(ctx: CanvasRenderingContext2D, boxes: BoxV1[], style: string): void {
     boxes.forEach((box) => {
       ctx.lineWidth = 1;
       ctx.strokeStyle = style;

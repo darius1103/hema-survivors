@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { fromEvent, BehaviorSubject, distinct, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Border } from './classes/border';
-import { Player } from './classes/player';
+import { PlayerV1 } from './classes/player';
 import { Color } from './utils/color';
 import { ControlStatus } from './utils/control-status';
 import { XYLocation } from './classes/xylocation';
@@ -13,8 +13,9 @@ import { Fighter } from './classes/fighter';
 import { EventsStreams } from './utils/events-streams';
 import { DeathEvent } from './utils/death-event';
 import { HitEvent } from './utils/hit-event';
-import { TemporaryElement } from './classes/temporary-element';
 import { TemporaryText } from './classes/temporary-text';
+import { basicEnemyConfig, PLAYER, playerConfig } from './classes/display/characters/characters';
+import { Character } from './classes/display/characters/character';
 
 @Component({
   selector: 'app-game-window',
@@ -35,7 +36,7 @@ export class GameWindowComponent {
   private domContext: CanvasRenderingContext2D = null as any;
   private delay = 0; // 120 is about 1 frame per second :)
   private currentFrame = 0;
-  private player: Player = null as any;
+  private player: PlayerV1 = null as any;
   private enemiesCount: number = 0;
   private border: Border = null as any;
   private controlKeys = 'wasd';
@@ -62,7 +63,7 @@ export class GameWindowComponent {
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
     this.playerLocation$ = new BehaviorSubject<XYLocation>(this.innitialPlayerLocation);
     this.playerId = this.randomId();
-    this.player = new Player(this.innitialPlayerLocation, new Fighter(), this.playerId, this.events$);
+    this.player = new PlayerV1(this.innitialPlayerLocation, new Fighter(), this.playerId, this.events$);
     
     this.player.control(this.control$.asObservable());
     this.border = new Border(this.topLeftCorner, this.bottomRightCorner);
@@ -105,16 +106,18 @@ export class GameWindowComponent {
   }
 
   private drawSpritePlayer(): void {
-    const fighter = this.player.getFighter();
-    this.spriteDrawing.draw(this.heroCanvasLTR.nativeElement.getContext("2d"), fighter, true);
-    this.spriteDrawing.draw(this.heroCanvasRTL.nativeElement.getContext("2d"), fighter, false);
-    this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), fighter.getSpriteLTR().frames[0], 0);
+    const playerLTR = new Character(playerConfig());
+    this.spriteDrawing.draw(this.heroCanvasLTR.nativeElement.getContext("2d"), playerLTR, true);
+    const playerRTL = new Character(playerConfig());
+    this.spriteDrawing.draw(this.heroCanvasRTL.nativeElement.getContext("2d"), playerRTL, false);
+    this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), true);
   }
 
   private drawSpriteEnemy(): void {
-    const fighter = new Fighter();
-    this.spriteDrawing.draw(this.enemyCanvasLTR.nativeElement.getContext("2d"), fighter, true);
-    this.spriteDrawing.draw(this.enemyCanvasRTL.nativeElement.getContext("2d"), fighter, false);
+    const basicEnemyLTR = new Character(basicEnemyConfig());
+    this.spriteDrawing.draw(this.enemyCanvasLTR.nativeElement.getContext("2d"), basicEnemyLTR, true);
+    const basicEnemyRTL = new Character(basicEnemyConfig());
+    this.spriteDrawing.draw(this.enemyCanvasRTL.nativeElement.getContext("2d"), basicEnemyRTL, false);
   }
 
   private handleInput(event: any, type: string): void {
@@ -232,8 +235,8 @@ export class GameWindowComponent {
   private playerAttack(): void {
     const fighter = this.player.getFighter();
     fighter.attack(this.hitAreas, this.player.getAbsolutePositon(), this.player.getFacingRight());
-    this.spriteDrawing.drawBoxes(this.domContext, fighter.getAdjustedAttackBox(), "green");
-    this.spriteDrawing.drawBoxes(this.domContext, fighter.getAdjustedHitBoxes(), "blue");
+    this.spriteDrawing.drawBoxesV1(this.domContext, fighter.getAdjustedAttackBox(), "green");
+    this.spriteDrawing.drawBoxesV1(this.domContext, fighter.getAdjustedHitBoxes(), "blue");
   }
 
   private spawnEnemy(): void {
