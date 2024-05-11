@@ -11,4 +11,6 @@ export interface CharacterMovementConfig {
     oldAbsolutePosition: XY,
     speed: number,
     facingRight: boolean,
+    width: number,
+    height: number,
 }

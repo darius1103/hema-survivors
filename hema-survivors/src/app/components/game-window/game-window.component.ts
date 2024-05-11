@@ -75,8 +75,10 @@ export class GameWindowComponent {
       eventStreams: this.events$,
       controlStatus: {UP: false, DOWN: false, LEFT: false, RIGHT: false},
       control$: this.control$,
-      speed: 0.5,
+      speed: 0.7,
       facingRight: true,
+      width: PIXEL_SIZE,
+      height: PIXEL_SIZE
     }
     this.player = new PlayerControlled(this.playerId, playerCC, playerMC);
     

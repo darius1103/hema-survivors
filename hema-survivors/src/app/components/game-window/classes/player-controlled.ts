@@ -1,6 +1,5 @@
 import { Observable } from "rxjs";
 import { ControlStatus } from "../utils/control-status";
-import { EventsStreams } from "../utils/events-streams";
 import { CharacterControlConfig } from "./common/character-control-config";
 import { CharacterMovementConfig } from "./common/character-movement-config";
 import { XY } from "./common/x-y";
@@ -27,8 +26,8 @@ export class PlayerControlled {
         stream.subscribe((status) => this.movementConfig.controlStatus = status);
     }
 
-    public move(p1s: any, p2b: any): XY {
-        return {x: 0, y: 0};
+    public move(p1: any, p2: any): XY {
+        return this.movementController.move(p1, p2);
     }
 
     public getCharacterDisplay(rlt: boolean): CharacterDisplay {
