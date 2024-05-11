@@ -1,4 +1,4 @@
-import { XY } from "./common/x-y";
+import { XY } from "../common/x-y";
 import { TemporaryElement } from "./temporary-element";
 
 export class TemporaryText extends TemporaryElement{

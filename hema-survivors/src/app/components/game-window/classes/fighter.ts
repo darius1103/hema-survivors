@@ -1,7 +1,4 @@
-import { range } from "rxjs";
 import { PIXEL_SIZE, SPRITE_SIZE } from "../utils/globals";
-import { SpriteV1 } from "./sprite";
-import { SpriteFrame } from "./sprite-frame";
 import { FighterSettings } from "../utils/fitherSettings";
 import { Color } from "../utils/color";
 import { Box } from "./common/box";
@@ -13,8 +10,6 @@ export class Fighter{
         secondaryColor: Color.RED,
         thirdColor: Color.AROS_GREEN
     }
-    public spriteRTL: SpriteV1 = null as any;
-    public spriteLTR: SpriteV1 = null as any;
     public hitBoxesRTL: Box[] = [];
     public hitBoxesLTR: Box[] = [];
     private attackBoxRTL: Box[] = [];
@@ -87,14 +82,6 @@ export class Fighter{
 
     public defineSprite(): void {
         // this.hitBoxes = [{p1: new XY(1, 1), p2: new XY((SPRITE_SIZE * PIXEL_SIZE), (SPRITE_SIZE * PIXEL_SIZE))}];
-    }
-    
-    public getSpriteRTL(): SpriteV1 {
-        return this.spriteRTL;
-    }
-
-    public getSpriteLTR(): SpriteV1 {
-        return this.spriteLTR;
     }
 
     public getHitBoxesRTL(): Box[] {

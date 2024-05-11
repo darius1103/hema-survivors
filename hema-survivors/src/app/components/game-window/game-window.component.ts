@@ -2,21 +2,22 @@ import { Component, ViewChild } from '@angular/core';
 import { fromEvent, BehaviorSubject, distinct, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Border } from './classes/border';
-import { PlayerControlled } from './classes/player-controlled';
+import { PlayerController } from './classes/control/player-controller';
 import { Color } from './utils/color';
 import { ControlStatus } from './utils/control-status';
-import { Enemy } from './classes/enemy';
+import { BasicEnemyController } from './classes/control/basic-enemy-controller';
 import { SpriteDrawingService } from './services/sprite-drawing.service';
 import { DEBUG_MODE, MAX_ENEMIES, PIXEL_SIZE, SPRITE_SIZE, toggleDebugMode } from './utils/globals';
 import { EventsStreams } from './utils/events-streams';
 import { DeathEvent } from './utils/death-event';
 import { HitEvent } from './utils/hit-event';
-import { TemporaryText } from './classes/temporary-text';
 import { basicEnemyConfig, playerConfig } from './classes/display/characters/characters';
 import { CharacterDisplay } from './classes/display/characters/character-display';
 import { CharacterControlConfig } from './classes/common/character-control-config';
 import { CharacterMovementConfig } from './classes/common/character-movement-config';
 import { XY } from './classes/common/x-y';
+import { EnemyController } from './classes/control/enemy-controller';
+import { TemporaryText } from './classes/display/temporary-text';
 
 @Component({
   selector: 'app-game-window',
@@ -37,21 +38,21 @@ export class GameWindowComponent {
   private domContext: CanvasRenderingContext2D = null as any;
   private delay = 0; // 120 is about 1 frame per second :)
   private currentFrame = 0;
-  private player: PlayerControlled = null as any;
+  private player: PlayerController = null as any;
   private enemiesCount: number = 0;
   private border: Border = null as any;
   private controlKeys = 'wasd';
   private control$: BehaviorSubject<ControlStatus>;
   private playerLocation$: BehaviorSubject<XY>;
-  private p1eftCorner: XY =  {x: -this.HEIGHT, y: -this.WIDTH};
-  private p2ightCorner: XY = {x: this.HEIGHT, y: this.WIDTH};
+  private borderP1: XY =  {x: -this.HEIGHT, y: -this.WIDTH};
+  private borderP2: XY = {x: this.HEIGHT, y: this.WIDTH};
   private innitialPlayerLocation = {x: 0, y: 0};
   private requireTranslation: XY = {x: 0, y: 0};
   private lastEnemySpawnTime = 0;
   private enemySpawnDelay = 2000;
   private events$: EventsStreams;
   private playerId: string;
-  private hitAreas: Map<string, Map<string, Enemy>> = new Map<string, Map<string, Enemy>>();
+  private hitAreas: Map<string, Map<string, EnemyController>> = new Map<string, Map<string, EnemyController>>();
   private temporaryTexts: TemporaryText[] = [];
   private score = 0;
 
@@ -64,26 +65,29 @@ export class GameWindowComponent {
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
     this.playerLocation$ = new BehaviorSubject<XY>(this.innitialPlayerLocation);
     this.playerId = this.randomId();
+    const playerC = playerConfig();
     const playerCC: CharacterControlConfig = {
-      combinedDataLTR: new CharacterDisplay(playerConfig()),
+      attack: playerC.attack,
+      combinedDataLTR: new CharacterDisplay(playerC),
       combinedDataRTL: new CharacterDisplay(playerConfig()),
       eventStreams: this.events$,
     }
     const playerMC: CharacterMovementConfig = {
       absolutePosition: this.innitialPlayerLocation,
       oldAbsolutePosition: this.innitialPlayerLocation,
+      playerLocation$: this.playerLocation$,
       eventStreams: this.events$,
       controlStatus: {UP: false, DOWN: false, LEFT: false, RIGHT: false},
       control$: this.control$,
       speed: 0.7,
-      facingRight: true,
-      width: PIXEL_SIZE,
-      height: PIXEL_SIZE
+      ltr: true,
+      width: 0,
+      height: 0
     }
-    this.player = new PlayerControlled(this.playerId, playerCC, playerMC);
+    this.player = new PlayerController(this.playerId, playerCC, playerMC);
     
     this.player.control(this.control$.asObservable());
-    this.border = new Border(this.p1eftCorner, this.p2ightCorner);
+    this.border = new Border(this.borderP1, this.borderP2);
 
     fromEvent(document, 'keydown')
       .pipe(takeUntilDestroyed(), distinct())
@@ -206,7 +210,7 @@ export class GameWindowComponent {
   }
 
   private movePlayer(): void {
-    const playerLocation = this.player.move(this.p1eftCorner, this.p2ightCorner);
+    const playerLocation = this.player.move(this.borderP1, this.borderP2);
     this.requireTranslation = 
     { 
       x: playerLocation.x - this.playerLocation$.getValue().x,
@@ -241,20 +245,20 @@ export class GameWindowComponent {
 
   private moveEnemies(): void {
     this.flatHitArea().forEach(enemy => {
-      enemy.move(this.p1eftCorner, this.p2ightCorner);
+      enemy.move(this.borderP1, this.borderP2);
       this.asignToHitArea(enemy);
     });
   }
 
-  private flatHitArea(): Enemy[] {
-    const enemies: Enemy[] = [];
+  private flatHitArea(): EnemyController[] {
+    const enemies: EnemyController[] = [];
     this.hitAreas.forEach(map => map.forEach(enemy => enemies.push(enemy)));
     return enemies;
   }
 
   private playerAttack(): void {
     // const fighter = this.player.getFighter();
-    // fighter.attack(this.hitAreas, this.player.getAbsolutePositon(), this.player.getFacingRight());
+    this.player.attack(this.hitAreas);
     // this.spriteDrawing.drawBoxesV1(this.domContext, fighter.getAdjustedAttackBox(), "green");
     // this.spriteDrawing.drawBoxesV1(this.domContext, fighter.getAdjustedHitBoxes(), "blue");
   }
@@ -268,16 +272,26 @@ export class GameWindowComponent {
     // const enemyLocation = {x: 50, y: 0};
     const enemyId = this.randomId();
 
-    const basicEnemyLTR = new CharacterDisplay(basicEnemyConfig());
-    const basicEnemyRTL = new CharacterDisplay(basicEnemyConfig());
-
-    const enemy = new Enemy(
-      enemyLocation, 
-      this.playerLocation$.asObservable(), 
-      basicEnemyLTR, 
-      basicEnemyRTL,
-      enemyId, 
-      this.events$);
+    const basicEnemyC = basicEnemyConfig();
+    const basicEnemyCC: CharacterControlConfig = {
+      attack: basicEnemyC.attack,
+      combinedDataLTR: new CharacterDisplay(basicEnemyC),
+      combinedDataRTL: new CharacterDisplay(basicEnemyConfig()),
+      eventStreams: this.events$,
+    }
+    const basicEnemyMC: CharacterMovementConfig = {
+      absolutePosition: enemyLocation,
+      oldAbsolutePosition: enemyLocation,
+      playerLocation$: this.playerLocation$,
+      eventStreams: this.events$,
+      controlStatus: {UP: false, DOWN: false, LEFT: false, RIGHT: false},
+      control$: this.control$,
+      speed: 0.5,
+      ltr: true,
+      width: 0,
+      height: 0
+    }
+    const enemy = new BasicEnemyController(enemyId, basicEnemyCC, basicEnemyMC);
     this.enemiesCount++;
     this.asignToHitArea(enemy);
   }
@@ -293,7 +307,7 @@ export class GameWindowComponent {
     return this.lastEnemySpawnTime + "-" + this.getRandomInt(100);
   }
 
-  private asignToHitArea(enemy: Enemy): void {
+  private asignToHitArea(enemy: EnemyController): void {
     const enemyId = enemy.getId();
     const areaNewId = this.areaId(enemy.getAbsolutePositon())
     const areaOldId = this.areaId(enemy.getOldPositon());
@@ -305,7 +319,7 @@ export class GameWindowComponent {
 
     // Adjust new 
     if (!this.hitAreas.has(areaNewId)) {
-      this.hitAreas.set(areaNewId, new Map<string, Enemy>());
+      this.hitAreas.set(areaNewId, new Map<string, EnemyController>());
     }
     const areaMap = this.hitAreas.get(areaNewId);
     areaMap?.set(enemyId, enemy);
@@ -313,7 +327,7 @@ export class GameWindowComponent {
 
   private deleteFromHitArea(enemyId: string): void {
     let emptyMapsIds: string[] = [];
-    this.hitAreas.forEach((value: Map<string, Enemy>, key: string) => {
+    this.hitAreas.forEach((value: Map<string, EnemyController>, key: string) => {
       const deleted = value.delete(enemyId);
       if (value.size === 0) {
         emptyMapsIds.push(key);

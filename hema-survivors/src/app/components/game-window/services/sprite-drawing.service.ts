@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Box } from '../classes/common/box';
 import { CharacterDisplay } from '../classes/display/characters/character-display';
 import { PLAYER } from '../classes/display/characters/characters';
-import { TemporaryText } from '../classes/temporary-text';
+import { TemporaryText } from '../classes/display/temporary-text';
 import { codeToColor } from '../utils/colorLookUp';
 import { DEBUG_MODE, PIXEL_SIZE, SPRITE_HELPER } from '../utils/globals';
 

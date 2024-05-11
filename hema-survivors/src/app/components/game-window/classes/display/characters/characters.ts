@@ -7,7 +7,15 @@ import { CharacterDisplay } from "./character-display";
 
 
 export function playerConfig(): CharacterConfig {
+    const weapons = [
+        new Feber()
+    ];
     return {
+        attack: {
+            weapons: weapons.map(weapon => weapon.getWeapon()),
+            damageRangeMax: 2,
+            damageRangeMin: 0
+        },
         rightArm: {
             sleave: false, 
             guard: false,
@@ -35,7 +43,7 @@ export function playerConfig(): CharacterConfig {
                     anchorPoint: {x: 8, y:2}
                 },
             weapon_config: {
-                sprite: new Feber().getSprite(), 
+                sprite: weapons[0].getSprite(), 
                 under: false, 
                 anchorPoint: {x: 12, y:1},
                 name: "SWORD_FEDER"
@@ -120,7 +128,15 @@ export function playerConfig(): CharacterConfig {
 export const PLAYER = new CharacterDisplay(playerConfig());
 
 export function basicEnemyConfig(): CharacterConfig {
+    const weapons = [
+        new Feber()
+    ];
     return {
+        attack: {
+            weapons: weapons.map(weapon => weapon.getWeapon()),
+            damageRangeMax: 0,
+            damageRangeMin: -2
+        },
         rightArm: {
             sleave: false, 
             guard: false,
@@ -148,7 +164,7 @@ export function basicEnemyConfig(): CharacterConfig {
                     anchorPoint: {x: 8, y:2}
                 },
             weapon_config: {
-                sprite: new Feber().getSprite(), 
+                sprite: weapons[0].getSprite(), 
                 under: false, 
                 anchorPoint: {x: 12, y:1},
                 name: "SWORD_FEDER"

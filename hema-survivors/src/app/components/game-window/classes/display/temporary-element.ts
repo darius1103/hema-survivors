@@ -1,4 +1,4 @@
-import { XY } from "./common/x-y";
+import { XY } from "../common/x-y";
 
 export class TemporaryElement {
     private lifetime: number;

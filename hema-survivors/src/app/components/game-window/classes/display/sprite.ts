@@ -15,6 +15,8 @@ export class Sprite {
     private anchorLTR: XY;
     private anchorRTL: XY;
     private combinedData: CombinedData | null;
+    private width: number;
+    private height: number;
 
     constructor(
         segments: SegmentConfig[] = [], 
@@ -26,10 +28,11 @@ export class Sprite {
         this.anchorLTR = anchor;
         this.applyTheme = applyTheme;
         this.hitBoxLTR = SPRITE_HELPER.calculateHitBox(this.dataLTR);
-        const width = SPRITE_HELPER.width(this.dataLTR);
-        this.dataRTL = SPRITE_HELPER.flipData(width, this.dataLTR);
-        this.anchorRTL = SPRITE_HELPER.flipAnchor(width, this.anchorLTR);
-        this.hitBoxRTL = SPRITE_HELPER.flipBox(width, this.hitBoxLTR);
+        this.width = SPRITE_HELPER.width(this.dataLTR);
+        this.height = this.dataLTR.length;
+        this.dataRTL = SPRITE_HELPER.flipData(this.width, this.dataLTR);
+        this.anchorRTL = SPRITE_HELPER.flipAnchor(this.width, this.anchorLTR);
+        this.hitBoxRTL = SPRITE_HELPER.flipBox(this.width, this.hitBoxLTR);
         this.combinedData = null;
     }
 
@@ -47,6 +50,14 @@ export class Sprite {
 
     public getHitBoxRTL(): Box {
         return this.hitBoxRTL;
+    }
+
+    public getHeight(): number {
+        return this.height;
+    }
+
+    public getWidth(): number {
+        return this.width;
     }
 
     public getSegments(ltr: boolean): SegmentConfig[] {

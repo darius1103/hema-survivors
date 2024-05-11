@@ -1,39 +1,39 @@
 import { PIXEL_SIZE, SPRITE_SIZE } from "../../utils/globals";
+import { AttackCommand } from "../common/attack-command";
 import { Box } from "../common/box";
-import { CharacterControlConfig } from "../common/character-control-config";
 import { XY } from "../common/x-y";
-import { Enemy } from "../enemy";
+import { BasicEnemyController } from "./basic-enemy-controller";
+import { AttackController } from "./attack-controller";
 
-export class AttackPlayer {
-    private config: CharacterControlConfig;
-
-    constructor(config: CharacterControlConfig) {
-        this.config = config;
-    }
-
-    public attack(hitAreas: Map<string, Map<string, Enemy>>, ownLocation: XY, ltr: boolean = true): void {
-        if (Date.now() - (this.config?.lastAttack as any) < (this.config?.attackDelay as any)) {
+export class AttackPlayer extends AttackController {
+    public attack(command: AttackCommand): void {
+        if (Date.now() - (command.weapon.lastAttack as any) < (command.weapon.attackDelay as any)) {
             return;
         }
-        this.config.lastAttack = Date.now();
-        const ids = this.determineAttackRange(ownLocation);
+        command.weapon.lastAttack = Date.now();
+        const ids = this.determineAttackRange(command.ownLocation);
         const enemiesInRange = ids
-         .filter(id => hitAreas.has(id))
-         .map(id => hitAreas.get(id))
+         .filter(id => command.hitAreas.has(id))
+         .map(id => command.hitAreas.get(id))
          .filter((area: any) => area || area.size === 0)
          .flatMap((area: any) => Array.from(area.values()));
         if (enemiesInRange.length == 0) {
             console.log("no enemies in range");
-            this.config.adjustedAttackBox = [];
+            command.weapon.adjustedAttackBoxes = [];
             return;
         }
         console.log("Enemies in range: " + enemiesInRange.length);
-        this.config.adjustedAttackBox = this.mapBoxesToAbsolute(ltr ? 
-            (this.config?.attackBoxesLTR as any):  
-            (this.config?.attackBoxesRTL as any), ownLocation);
+        command.weapon.adjustedAttackBoxes = this.mapBoxesToAbsolute(command.ltr ? 
+            (command.weapon.attackBoxesLTR as any):  
+            (command.weapon.attackBoxesRTL as any), command.ownLocation);
         enemiesInRange
-            .forEach((enemy: any) => (enemy as Enemy)
-                .attemptAttack(this.config.adjustedAttackBox as any, 4));
+            .forEach((enemy: any) => (enemy as BasicEnemyController)
+                .attemptAttack(command.weapon.adjustedAttackBoxes as any, this.calculateDamate(command)));
+    }
+
+    private calculateDamate(command: AttackCommand): number {
+        return command.weapon.damage +
+            Math.floor(Math.random() * (command.damageRangeMax - command.damageRangeMin) + command.damageRangeMin);
     }
 
     private determineAttackRange(ownLocation: XY): string[] {

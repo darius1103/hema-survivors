@@ -1,19 +1,26 @@
+import { SPRITE_SIZE } from "../../utils/globals";
 import { CharacterMovementConfig } from "../common/character-movement-config";
 import { MoveCommand } from "../common/move-command";
 import { XY } from "../common/x-y";
 import { MovementController } from "./movement-controller";
 import { moveWithinBorder } from "./movement-npc";
 
-export class MovementPlayer extends MovementController {
+export class MovementBasicEnemy extends MovementController {
     private config: CharacterMovementConfig;
 
     constructor(config: CharacterMovementConfig) {
         super();
         this.config = config;
-        config.control$.subscribe(status => this.config.controlStatus = status);
     }
 
     public override move(p1: XY, p2: XY): XY {
+        const playerLocation = this.config.playerLocation$.getValue();
+        const ownPosition = this.config.absolutePosition;
+        const spacing = SPRITE_SIZE;
+        if (this.distance(ownPosition, playerLocation) < spacing) {
+            return this.config.oldAbsolutePosition;
+        }
+        this.determineStatus(ownPosition, playerLocation);
         const moveCommand: MoveCommand = {
             borderP1: p1,
             borderP2: p2,
@@ -32,5 +39,19 @@ export class MovementPlayer extends MovementController {
 
     public override rtl(): boolean{
         return this.config.ltr;
+    }
+
+    private determineStatus(own: XY, player: XY): void {
+        const padding = 10;
+        this.config.controlStatus.DOWN = player.y > own.y - padding;
+        this.config.controlStatus.UP = player.y < own.y + padding;
+        this.config.controlStatus.LEFT = player.x < own.x + padding;
+        this.config.controlStatus.RIGHT = player.x > own.x - padding;
+    }
+
+    private distance(own: XY, player: XY): number {
+        var xDiff = own.x - player.x; 
+        var yDiff = own.y - player.y;
+        return Math.sqrt(xDiff * xDiff + yDiff * yDiff)
     }
 }

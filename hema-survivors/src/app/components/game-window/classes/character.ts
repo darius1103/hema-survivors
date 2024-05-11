@@ -5,8 +5,6 @@ import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
 import { Box } from "./common/box";
 import { XY } from "./common/x-y";
 import { CharacterDisplay } from "./display/characters/character-display";
-import { SpriteV1 } from "./sprite";
-import { SpriteFrame } from "./sprite-frame";
 
 export class Character {
     private id: string;
@@ -20,7 +18,6 @@ export class Character {
     public height: number = 0;
 
     private speed: number = 1;
-    private sprite: SpriteV1 = new SpriteV1([]);
     
     private maxHealth: number = 10;
     private currentHealth: number = 10;
@@ -35,8 +32,6 @@ export class Character {
 
         this.absolutePosition.x = innitialLocation.x;
         this.absolutePosition.y = innitialLocation.y;
-
-        this.defineSprinte();
     }
 
     public getCharacterDisplay(rlt: boolean): CharacterDisplay {
@@ -75,16 +70,6 @@ export class Character {
         return this.oldAbsolutePosition;
     }
     
-    private defineSprinte(): void {
-        this.sprite = new SpriteV1([new SpriteFrame(FRAME_ONE), new SpriteFrame(FRAME_TWO)]);
-        this.height = FRAME_ONE.length * PIXEL_SIZE;
-        this.width = FRAME_ONE[0].length * PIXEL_SIZE;
-    }
-
-    public getSprite(): SpriteV1 {
-        return this.sprite;
-    }
-
     public setSpeed(speed: number): void {
         this.speed = speed;
     }
