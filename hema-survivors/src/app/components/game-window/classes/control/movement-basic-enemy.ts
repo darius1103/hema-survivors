@@ -32,13 +32,21 @@ export class MovementBasicEnemy extends MovementController {
         };
         const commandResult = moveWithinBorder(moveCommand);
         this.config.absolutePosition = commandResult.newPosition;
-        this.config.ltr = commandResult.facingRight;
+
+        this.config.ltr = commandResult.newPosition.x === commandResult.oldPosition.x ?
+            this.config.ltr: commandResult.newPosition.x > commandResult.oldPosition.x ;
         this.config.oldAbsolutePosition = commandResult.oldPosition;
         return this.config.oldAbsolutePosition;
     }
 
-    public override rtl(): boolean{
+    public override ltr(): boolean{
         return this.config.ltr;
+    }
+
+    public distanceFromPlayer(): number {
+        const playerLocation = this.config.playerLocation$.getValue();
+        const ownPosition = this.config.absolutePosition;
+        return this.distance(ownPosition, playerLocation);
     }
 
     private determineStatus(own: XY, player: XY): void {

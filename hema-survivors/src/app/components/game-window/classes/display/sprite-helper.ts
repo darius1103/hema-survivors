@@ -1,5 +1,5 @@
 import { colorToCode } from "../../utils/colorLookUp";
-import { SPRITE_SIZE } from "../../utils/globals";
+import { MAGIC_BOX_ALIGNMENT, PIXEL_SIZE, SPRITE_SIZE } from "../../utils/globals";
 import { Box } from "../common/box";
 import { CharacterConfig } from "../common/character-config";
 import { CombinedData } from "../common/combined-data";
@@ -42,8 +42,8 @@ export class SpriteHelper {
         const centered: Box[] = [];
         boxes.forEach(box => {
             const boxW = box.p2.x - box.p1.x;
-            const x = 16;
-            if (boxW > 0) {
+            const x = MAGIC_BOX_ALIGNMENT;
+            if (boxW > 1) {
                 centered.push({
                     p1: {x: box.p1.x + x, y : box.p1.y},
                     p2: {x: box.p2.x + x, y : box.p2.y}}
@@ -81,7 +81,7 @@ export class SpriteHelper {
                 }
             });
         });
-        return {p1: {x: x1, y: y1}, p2: {x: x2, y: y2}};
+        return {p1: {x: x1, y: y1}, p2: {x: x2 + 1, y: y2 + 1}};
     }
     
     public flipAnchor(width: number, anchor: XY): XY {
@@ -177,6 +177,7 @@ export class SpriteHelper {
                 }});
             });
         });
+        acumulatedBoxes = acumulatedBoxes.filter(box => box.p1.x === box.p1.x || box.p1.y === box.p1.y);
         return {data: data, boxes: acumulatedBoxes, anchor: anchor};
     }
 

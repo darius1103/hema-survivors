@@ -4,7 +4,7 @@ import { CharacterDisplay } from '../classes/display/characters/character-displa
 import { PLAYER } from '../classes/display/characters/characters';
 import { TemporaryText } from '../classes/display/temporary-text';
 import { codeToColor } from '../utils/colorLookUp';
-import { DEBUG_MODE, PIXEL_SIZE, SPRITE_HELPER } from '../utils/globals';
+import { DEBUG_MODE, PIXEL_SIZE, SPRITE_HELPER, SPRITE_SIZE } from '../utils/globals';
 
 @Injectable({
   providedIn: 'root'
@@ -16,12 +16,20 @@ export class SpriteDrawingService {
   public draw(ctx: CanvasRenderingContext2D, character: CharacterDisplay, rtl: boolean = true): void {
     const combinedData = character.getSprite().getCombinedData(rtl, character.getConfig());
     this.drawFrame(ctx, SPRITE_HELPER.centerData(combinedData.data));
-    this.drawBoxes(ctx, SPRITE_HELPER.centerBoxesH(combinedData.boxes), "black");
+    // this.drawBoxes(ctx, SPRITE_HELPER.centerBoxesH(combinedData.boxes), "black");
   }
 
   private drawFrame(ctx: CanvasRenderingContext2D, data: number[][], offset: number = 0): void {
-    const frameHeight = data.length * PIXEL_SIZE;
     const frameWidth = data[0].length * PIXEL_SIZE;
+    // ctx.beginPath();
+    // ctx.moveTo(0, 0);
+    // ctx.lineTo(SPRITE_SIZE * PIXEL_SIZE, SPRITE_SIZE * PIXEL_SIZE);
+    // ctx.stroke();
+
+    // ctx.beginPath();
+    // ctx.moveTo(SPRITE_SIZE * PIXEL_SIZE, 0);
+    // ctx.lineTo(0, SPRITE_SIZE * PIXEL_SIZE);
+    // ctx.stroke();
     for (let i: number = 0; i < data.length; i++) {
       const frameRow = data[i] ? data[i] : [];
       for (let j: number = 0; j < frameRow.length; j++) {
@@ -38,12 +46,6 @@ export class SpriteDrawingService {
         ctx.fillStyle = codeToColor.get(frameRow[j]) as any;
         ctx.fill();
       }
-    }
-    if (DEBUG_MODE) {
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(frameWidth, frameHeight);
-      ctx.stroke();
     }
   }
 
@@ -64,10 +66,10 @@ export class SpriteDrawingService {
       ctx.lineWidth = 1;
       ctx.strokeStyle = style;
       ctx.strokeRect(
-        10 + box.p1.x * PIXEL_SIZE, 
-        1 + box.p1.y * PIXEL_SIZE, 
-        (box.p2.x - box.p1.x + 1) * PIXEL_SIZE,
-        (box.p2.y - box.p1.y + 1) * PIXEL_SIZE
+        box.p1.x * PIXEL_SIZE, 
+        box.p1.y * PIXEL_SIZE, 
+        (box.p2.x - box.p1.x) * PIXEL_SIZE,
+        (box.p2.y - box.p1.y) * PIXEL_SIZE
       );
     });
   }

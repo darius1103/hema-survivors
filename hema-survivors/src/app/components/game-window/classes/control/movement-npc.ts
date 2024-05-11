@@ -31,10 +31,8 @@ export function moveWithinBorder(command: MoveCommand): MoveResult {
     deltaX *= command.speed;
     deltaY *= command.speed;
 
-    const facingRight = deltaX >= 0;
-
     const newPosition = adjustIfInBounds(command, deltaX, deltaY);
-    return {newPosition: newPosition, oldPosition: command.currentPosition, facingRight: facingRight};
+    return {newPosition: newPosition, oldPosition: command.currentPosition};
 }
 
 function adjustIfInBounds(command: MoveCommand, deltaX: number, deltaY: number): XY {

@@ -1,9 +1,11 @@
-import { PIXEL_SIZE, SPRITE_SIZE } from "../../utils/globals";
+import { PIXEL_SIZE } from "../../utils/globals";
 import { AttackCommand } from "../common/attack-command";
-import { Box } from "../common/box";
 import { XY } from "../common/x-y";
 import { BasicEnemyController } from "./basic-enemy-controller";
 import { AttackController } from "./attack-controller";
+import { AttackEvent } from "../../utils/attack-event";
+import { Box } from "../common/box";
+import { Subject } from "rxjs";
 
 export class AttackPlayer extends AttackController {
     public attack(command: AttackCommand): void {
@@ -18,7 +20,7 @@ export class AttackPlayer extends AttackController {
          .filter((area: any) => area || area.size === 0)
          .flatMap((area: any) => Array.from(area.values()));
         if (enemiesInRange.length == 0) {
-            console.log("no enemies in range");
+            console.log("No enemies in range");
             command.weapon.adjustedAttackBoxes = [];
             return;
         }
@@ -28,19 +30,16 @@ export class AttackPlayer extends AttackController {
             (command.weapon.attackBoxesRTL as any), command.ownLocation);
         enemiesInRange
             .forEach((enemy: any) => (enemy as BasicEnemyController)
-                .attemptAttack(command.weapon.adjustedAttackBoxes as any, this.calculateDamate(command)));
-    }
-
-    private calculateDamate(command: AttackCommand): number {
-        return command.weapon.damage +
-            Math.floor(Math.random() * (command.damageRangeMax - command.damageRangeMin) + command.damageRangeMin);
+                .attemptAttack(
+                    command.weapon.adjustedAttackBoxes as any, 
+                    this.calculateDamage(command.weapon.damage, command.damageRangeMin, command.damageRangeMax)));
     }
 
     private determineAttackRange(ownLocation: XY): string[] {
         const ownXID = Math.floor(ownLocation.x / 50);
         const ownYID = Math.floor(ownLocation.y / 50);
         const areas = [];
-        const range = 3;
+        const range = PIXEL_SIZE + 1;
         for (let i = -range; i <= range; i ++) {
             for (let j = -range; j <= range; j ++) {
                 areas.push((ownXID + i) + "-" + (ownYID - j))
@@ -49,15 +48,10 @@ export class AttackPlayer extends AttackController {
         return areas;
     }
 
-    private mapBoxesToAbsolute(boxes: Box[], location: XY): Box[] {
-        return boxes.map(box => this.mapBoxToAbsolute(box, location));
-    }
-
-    private mapBoxToAbsolute(box: Box, location: XY): Box {
-        const x1 = location.x - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.p1.x;
-        const y1 = location.y - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.p1.y;
-        const x2 = location.x - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.p2.x;
-        const y2 = location.y - ((SPRITE_SIZE * PIXEL_SIZE) / 2) + box.p2.y;
-        return {p1: {x: x1, y: y1}, p2: {x: x2, y: y2}};
+    public attemptAttack(event: AttackEvent, hitBoxes: Box[], ownLocation: XY, boxes$: Subject<Box[]>): boolean {
+        const adjusted = this.mapBoxesToAbsolute(hitBoxes, ownLocation);
+        boxes$.next(adjusted);
+        return adjusted
+            .some((box) => this.checkColision(box, event.boxes));
     }
 }

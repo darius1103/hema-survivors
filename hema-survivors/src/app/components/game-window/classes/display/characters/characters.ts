@@ -14,7 +14,8 @@ export function playerConfig(): CharacterConfig {
         attack: {
             weapons: weapons.map(weapon => weapon.getWeapon()),
             damageRangeMax: 2,
-            damageRangeMin: 0
+            damageRangeMin: 0,
+            range: 100,
         },
         rightArm: {
             sleave: false, 
@@ -135,7 +136,8 @@ export function basicEnemyConfig(): CharacterConfig {
         attack: {
             weapons: weapons.map(weapon => weapon.getWeapon()),
             damageRangeMax: 0,
-            damageRangeMin: -2
+            damageRangeMin: -2,
+            range: 100,
         },
         rightArm: {
             sleave: false, 

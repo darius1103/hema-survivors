@@ -32,7 +32,7 @@ export class Sprite {
         this.height = this.dataLTR.length;
         this.dataRTL = SPRITE_HELPER.flipData(this.width, this.dataLTR);
         this.anchorRTL = SPRITE_HELPER.flipAnchor(this.width, this.anchorLTR);
-        this.hitBoxRTL = SPRITE_HELPER.flipBox(this.width, this.hitBoxLTR);
+        this.hitBoxRTL = SPRITE_HELPER.calculateHitBox(this.dataRTL);
         this.combinedData = null;
     }
 

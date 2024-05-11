@@ -9,6 +9,9 @@ import { AttackPlayer } from "./attack-player";
 import { MovementPlayer } from "./movement-player";
 import { CharacterDisplay } from "../display/characters/character-display";
 import { drawStT } from "../display/sprite-draw";
+import { Box } from "../common/box";
+import { AttackEvent } from "../../utils/attack-event";
+import { SPRITE_HELPER } from "../../utils/globals";
 
 export class PlayerController {
     private id: string;
@@ -54,12 +57,34 @@ export class PlayerController {
         })
     }
 
+    public attemptAttack(attack: AttackEvent): void {
+        const hitBoxes = SPRITE_HELPER.centerBoxesH(this.getHitBoxes());
+        const gotHit = this.attackController.attemptAttack(
+            attack, 
+            hitBoxes, 
+            this.movementConfig.absolutePosition,
+            this.controlConfig.health.hitBoxes$);
+        if (gotHit) {
+            console.log("You, enemy, hurt me for " + attack.damage + " , auch!");
+            this.controlConfig.events$.hit.next({
+                text: attack.damage.toString(),
+                location: this.movementConfig.absolutePosition});
+            this.controlConfig.health.currentHealth -= attack.damage;
+            if (this.controlConfig.health.currentHealth <= 0) {
+                this.controlConfig.events$.death.next({
+                    id: this.id});
+            }
+        } else {
+            console.log("Missed me, enemy!");
+        }
+    }
+
     public getCharacterDisplay(rlt: boolean): CharacterDisplay {
         return (rlt ? this.controlConfig?.combinedDataLTR: this.controlConfig?.combinedDataRTL) as any;
     }
 
     public draw(targetCtx: CanvasRenderingContext2D, sourceCtxRTL: HTMLCanvasElement, sourceCtxLTR: HTMLCanvasElement): void {
-        const sourceCtx = this.movementController.rtl() ? sourceCtxRTL : sourceCtxLTR;
+        const sourceCtx = this.movementController.ltr() ? sourceCtxRTL : sourceCtxLTR;
         const position = this.movementConfig.absolutePosition;
         const drawCommand: DrawCommand = {
             targetCtx,
@@ -67,5 +92,20 @@ export class PlayerController {
             position,
         }
         drawStT(drawCommand);
+    }
+
+    public getAdjustedAttackBoxes(): Box[] {
+        let boxes: Box[] = [];
+        this.controlConfig.attack.weapons.forEach(weapon => boxes = boxes.concat(weapon.adjustedAttackBoxes));
+        return boxes;
+    }
+
+    private getHitBoxes(): Box[] {
+        const config = this.movementConfig.ltr ? 
+        this.controlConfig.combinedDataLTR.getConfig() :
+        this.controlConfig.combinedDataRTL.getConfig();
+    return this.movementConfig.ltr ? 
+        this.controlConfig.combinedDataLTR.getSprite().getCombinedData(this.movementConfig.ltr, config).boxes :
+        this.controlConfig.combinedDataRTL.getSprite().getCombinedData(this.movementConfig.ltr, config).boxes;
     }
 }

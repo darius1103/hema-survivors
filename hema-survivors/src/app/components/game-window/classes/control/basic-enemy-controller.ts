@@ -2,13 +2,12 @@ import { Box } from "../common/box";
 import { CharacterControlConfig } from "../common/character-control-config";
 import { CharacterMovementConfig } from "../common/character-movement-config";
 import { AttackBasicEnemy } from "./attack-basic-enemy";
-import { AttackController } from "./attack-controller";
 import { MovementBasicEnemy } from "./movement-basic-enemy";
-import { MovementController } from "./movement-controller";
 import { EnemyController } from "./enemy-controller";
 import { DrawCommand } from "../common/draw-commabd";
 import { drawStT } from "../display/sprite-draw";
 import { XY } from "../common/x-y";
+import { SPRITE_HELPER } from "../../utils/globals";
 
 export class BasicEnemyController extends EnemyController  {
     private id: string;
@@ -31,29 +30,50 @@ export class BasicEnemyController extends EnemyController  {
     }
 
     public attemptAttack(attackBoxes: Box[], damage: number): void {
-        console.log("You hurt me for " + damage + " , auch!");
-        console.log(attackBoxes);
-        // const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition, this.facingRight);
-        // if (gotHit) {
-        //     this.events$.hit.next({
-        //         text: damage.toString(),
-        //         unit: this.figther,
-        //         location: this.getAbsolutePositon()});
-        //     this.currentHealth -= damage;
-        //     if (this.currentHealth <= 0) {
-        //         this.events$.death.next({
-        //             id: this.id, 
-        //             unit: this.figther});
-        //     }
-        // }
+        const hitBoxes = SPRITE_HELPER.centerBoxesH(this.getHitBoxes());
+        const gotHit = this.attackController.attemptAttack(
+            attackBoxes, 
+            hitBoxes, 
+            this.movementConfig.absolutePosition,
+            this.controlConfig.health.hitBoxes$);
+        if (gotHit) {
+            console.log("You hurt me for " + damage + " , auch!");
+            this.controlConfig.events$.hit.next({
+                text: damage.toString(),
+                location: this.getAbsolutePositon()});
+            this.controlConfig.health.currentHealth -= damage;
+            if (this.controlConfig.health.currentHealth <= 0) {
+                this.controlConfig.events$.death.next({
+                    id: this.id});
+            }
+        } else {
+            console.log("Missed me!");
+        }
+    }
+
+    private getHitBoxes(): Box[] {
+        const config = this.movementConfig.ltr ? 
+        this.controlConfig.combinedDataLTR.getConfig() :
+        this.controlConfig.combinedDataRTL.getConfig();
+    return this.movementConfig.ltr ? 
+        this.controlConfig.combinedDataLTR.getSprite().getCombinedData(this.movementConfig.ltr, config).boxes :
+        this.controlConfig.combinedDataRTL.getSprite().getCombinedData(this.movementConfig.ltr, config).boxes;
     }
 
     public override getId(): string {
         return this.id;
     }
 
-    public override move(p1: any, p2: any): XY {
-        return this.movementController.move(p1, p2);
+    public override move(p1: any, p2: any): void {
+        this.movementController.move(p1, p2);
+        this.attackController.attack({
+            id :this.id,
+            config:this.controlConfig.attack, 
+            location:this.movementConfig.absolutePosition, 
+            distance:this.movementController.distanceFromPlayer(),
+            attack$:this.controlConfig.events$.attack,
+            ltr: this.movementController.ltr()
+        });
     }
 
     public override getAbsolutePositon(): XY {
@@ -65,7 +85,7 @@ export class BasicEnemyController extends EnemyController  {
     } 
 
     public override draw(targetCtx: CanvasRenderingContext2D, sourceCtxRTL: HTMLCanvasElement, sourceCtxLTR: HTMLCanvasElement): void {
-        const sourceCtx = this.movementController.rtl() ? sourceCtxRTL : sourceCtxLTR;
+        const sourceCtx = this.movementController.ltr() ? sourceCtxRTL : sourceCtxLTR;
         const position = this.movementConfig.absolutePosition;
         const drawCommand: DrawCommand = {
             targetCtx,

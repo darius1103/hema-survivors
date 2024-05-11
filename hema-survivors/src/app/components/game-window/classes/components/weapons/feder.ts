@@ -12,7 +12,7 @@ export class Feber extends Component {
     constructor() {
         super();
         const attackBoxesLTR: Box[] = [
-            {p1: {x: SPRITE_SIZE / 2, y: 0}, p2: {x: SPRITE_SIZE, y: SPRITE_SIZE / 4}},
+            {p1: {x: SPRITE_SIZE / 2, y: 0}, p2: {x: SPRITE_SIZE / 4 * 3, y: SPRITE_SIZE / 4}},
             {p1: {x: SPRITE_SIZE / 2, y: SPRITE_SIZE / 4}, p2: {x: SPRITE_SIZE, y: SPRITE_SIZE / 2}}
         ];
         const attackBoxesRTL: Box[] = [

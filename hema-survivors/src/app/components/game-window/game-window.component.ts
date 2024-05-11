@@ -18,6 +18,8 @@ import { CharacterMovementConfig } from './classes/common/character-movement-con
 import { XY } from './classes/common/x-y';
 import { EnemyController } from './classes/control/enemy-controller';
 import { TemporaryText } from './classes/display/temporary-text';
+import { Box } from './classes/common/box';
+import { AttackEvent } from './utils/attack-event';
 
 @Component({
   selector: 'app-game-window',
@@ -55,11 +57,14 @@ export class GameWindowComponent {
   private hitAreas: Map<string, Map<string, EnemyController>> = new Map<string, Map<string, EnemyController>>();
   private temporaryTexts: TemporaryText[] = [];
   private score = 0;
+  private hitBoxes$: BehaviorSubject<Box[]> = new BehaviorSubject<Box[]>([]);
+  private GAME_OVER = false;
 
   constructor (private spriteDrawing: SpriteDrawingService) {
     this.events$ =  {
       death: new Subject<DeathEvent>(),
-      hit: new Subject<HitEvent>()
+      hit: new Subject<HitEvent>(),
+      attack: new Subject<AttackEvent>()
     }
 
     this.control$ = new BehaviorSubject<ControlStatus>({UP: false, DOWN: false, LEFT: false, RIGHT: false});
@@ -70,7 +75,12 @@ export class GameWindowComponent {
       attack: playerC.attack,
       combinedDataLTR: new CharacterDisplay(playerC),
       combinedDataRTL: new CharacterDisplay(playerConfig()),
-      eventStreams: this.events$,
+      events$: this.events$,
+      health: {
+        maximumHealth: 10,
+        currentHealth: 10,
+        hitBoxes$: this.hitBoxes$
+      }
     }
     const playerMC: CharacterMovementConfig = {
       absolutePosition: this.innitialPlayerLocation,
@@ -181,11 +191,18 @@ export class GameWindowComponent {
   private listenToEvents(): void {
     this.events$.death.subscribe((death: DeathEvent) => this.handleEnemyDeath(death));
     this.events$.hit.subscribe((hit: HitEvent) => this.handleEnemyHit(hit));
+    this.events$.attack.subscribe((attack: AttackEvent) => this.handleEnemyAttack(attack))
+  }
+
+  private handleEnemyAttack(attack: AttackEvent): void {
+    this.player.attemptAttack(attack);
+    this.hitBoxes$.next(this.hitBoxes$.getValue().concat(attack.boxes));
   }
 
   private handleEnemyDeath(death: DeathEvent): void {
     if (death.id === this.playerId) {
       console.log("You can't die like this...");
+      this.GAME_OVER = true;
       return;
     }
     this.deleteFromHitArea(death.id);
@@ -257,10 +274,9 @@ export class GameWindowComponent {
   }
 
   private playerAttack(): void {
-    // const fighter = this.player.getFighter();
     this.player.attack(this.hitAreas);
-    // this.spriteDrawing.drawBoxesV1(this.domContext, fighter.getAdjustedAttackBox(), "green");
-    // this.spriteDrawing.drawBoxesV1(this.domContext, fighter.getAdjustedHitBoxes(), "blue");
+    this.spriteDrawing.drawBoxesV1(this.domContext, this.player.getAdjustedAttackBoxes(), "green");
+    this.spriteDrawing.drawBoxesV1(this.domContext, this.hitBoxes$.getValue(), "red");
   }
 
   private spawnEnemy(): void {
@@ -277,7 +293,12 @@ export class GameWindowComponent {
       attack: basicEnemyC.attack,
       combinedDataLTR: new CharacterDisplay(basicEnemyC),
       combinedDataRTL: new CharacterDisplay(basicEnemyConfig()),
-      eventStreams: this.events$,
+      events$: this.events$,
+      health: {
+        maximumHealth: 10,
+        currentHealth: 10,
+        hitBoxes$: this.hitBoxes$
+      }
     }
     const basicEnemyMC: CharacterMovementConfig = {
       absolutePosition: enemyLocation,
@@ -345,6 +366,9 @@ export class GameWindowComponent {
   }
 
   private animate(): void {
+    if (this.GAME_OVER) {
+      return;
+    }
     if (this.currentFrame < this.delay) {
       this.currentFrame++;
       window.requestAnimationFrame(() => this.animate());

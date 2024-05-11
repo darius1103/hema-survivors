@@ -9,8 +9,7 @@ export class EnemyController {
         return "default";
     }
 
-    public move(p1: XY, p2: XY): XY {
-        return {x: 0, y: 0};
+    public move(p1: XY, p2: XY): void {
     }
 
     public getAbsolutePositon(): XY {

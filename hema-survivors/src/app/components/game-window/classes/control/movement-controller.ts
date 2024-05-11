@@ -5,7 +5,7 @@ export class MovementController {
         return {x: 0, y: 0};
     }
 
-    public rtl(): boolean {
+    public ltr(): boolean {
         return true;
     }
 }
