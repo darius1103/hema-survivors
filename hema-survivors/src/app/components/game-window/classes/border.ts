@@ -1,30 +1,30 @@
 import { Color } from "../utils/color";
-import { XYLocation } from "./xylocation";
+import { XY } from "./common/x-y";
 
 export class Border {
-    topLeftCorner: XYLocation = new XYLocation(0, 0);
-    bottomRightCorner: XYLocation = new XYLocation(0, 0);
+    p1eftCorner: XY = {x: 0, y: 0};
+    p2ightCorner: XY = {x: 0, y: 0};
 
-    constructor (topLeftCorner: XYLocation, botoomRightCorner: XYLocation) {
-        this.topLeftCorner = topLeftCorner;
-        this.bottomRightCorner = botoomRightCorner;
+    constructor (p1eftCorner: XY, botoomRightCorner: XY) {
+        this.p1eftCorner = p1eftCorner;
+        this.p2ightCorner = botoomRightCorner;
     }
 
     public draw(ctx: CanvasRenderingContext2D): void {
         ctx.lineWidth = 1;
         this.writePositions(ctx);
         ctx.strokeRect(
-            this.topLeftCorner.x, 
-            this.topLeftCorner.y, 
-            this.bottomRightCorner.x - this.topLeftCorner.x, 
-            this.bottomRightCorner.y - this.topLeftCorner.y
+            this.p1eftCorner.x, 
+            this.p1eftCorner.y, 
+            this.p2ightCorner.x - this.p1eftCorner.x, 
+            this.p2ightCorner.y - this.p1eftCorner.y
         );
     }
 
     private writePositions(ctx: CanvasRenderingContext2D): void {
         ctx.fillStyle = "black";
-        for (let i = this.topLeftCorner.x; i < this.bottomRightCorner.x; i += 50) {
-            for (let j = this.topLeftCorner.y; j < this.bottomRightCorner.y; j += 50) {
+        for (let i = this.p1eftCorner.x; i < this.p2ightCorner.x; i += 50) {
+            for (let j = this.p1eftCorner.y; j < this.p2ightCorner.y; j += 50) {
                 ctx.font = "8px Arial";
                 const message = i + "/" + j;
                 ctx.fillText(message, i , j);

@@ -6,7 +6,7 @@ import { Torso } from "../../components/body/torso";
 import { Waist } from "../../components/body/waist";
 import { Sprite } from "../sprite";
 
-export class Character {
+export class CharacterDisplay {
     private sprite: Sprite;
     private config: CharacterConfig;
 

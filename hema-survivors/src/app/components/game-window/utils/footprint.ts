@@ -1,7 +1,7 @@
-import { XYLocation } from "../classes/xylocation";
+import { XY } from "../classes/xylocation";
 
 export interface Footprint {
     width: number,
     height: number,
-    location: XYLocation,
+    location: XY,
 }

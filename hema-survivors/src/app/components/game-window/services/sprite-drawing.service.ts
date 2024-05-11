@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Box } from '../classes/common/box';
-import { Character } from '../classes/display/characters/character';
+import { CharacterDisplay } from '../classes/display/characters/character-display';
 import { PLAYER } from '../classes/display/characters/characters';
-import { Fighter } from '../classes/fighter';
-import { SpriteFrame } from '../classes/sprite-frame';
 import { TemporaryText } from '../classes/temporary-text';
-import { BoxV1 } from '../utils/box';
 import { codeToColor } from '../utils/colorLookUp';
 import { DEBUG_MODE, PIXEL_SIZE, SPRITE_HELPER } from '../utils/globals';
 
@@ -16,7 +13,7 @@ export class SpriteDrawingService {
 
   constructor() { }
 
-  public draw(ctx: CanvasRenderingContext2D, character: Character, rtl: boolean = true): void {
+  public draw(ctx: CanvasRenderingContext2D, character: CharacterDisplay, rtl: boolean = true): void {
     const combinedData = character.getSprite().getCombinedData(rtl, character.getConfig());
     this.drawFrame(ctx, SPRITE_HELPER.centerData(combinedData.data));
     this.drawBoxes(ctx, SPRITE_HELPER.centerBoxesH(combinedData.boxes), "black");
@@ -88,15 +85,15 @@ export class SpriteDrawingService {
     });
   }
 
-  public drawBoxesV1(ctx: CanvasRenderingContext2D, boxes: BoxV1[], style: string): void {
+  public drawBoxesV1(ctx: CanvasRenderingContext2D, boxes: Box[], style: string): void {
     boxes.forEach((box) => {
       ctx.lineWidth = 1;
       ctx.strokeStyle = style;
       ctx.strokeRect(
-        box.topL.x, 
-        box.topL.y, 
-        (box.bottomR.x - box.topL.x),
-        (box.bottomR.y - box.topL.y)
+        box.p1.x, 
+        box.p1.y, 
+        (box.p2.x - box.p1.x),
+        (box.p2.y - box.p1.y)
       );
     });
   }

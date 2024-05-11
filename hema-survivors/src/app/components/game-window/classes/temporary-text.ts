@@ -1,12 +1,12 @@
+import { XY } from "./common/x-y";
 import { TemporaryElement } from "./temporary-element";
-import { XYLocation } from "./xylocation";
 
 export class TemporaryText extends TemporaryElement{
     private message: string;
     private font: string;
     private color: string;
 
-    constructor(lifetime: number, location: XYLocation, message: string, font: string, color: string) {
+    constructor(lifetime: number, location: XY, message: string, font: string, color: string) {
         super(lifetime, location);
         this.message = message;
         this.font = font;

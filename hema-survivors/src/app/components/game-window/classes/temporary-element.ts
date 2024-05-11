@@ -1,11 +1,11 @@
-import { XYLocation } from "./xylocation";
+import { XY } from "./common/x-y";
 
 export class TemporaryElement {
     private lifetime: number;
     private creationTime: number;
-    private location: XYLocation;
+    private location: XY;
 
-    constructor(lifetime: number, location: XYLocation) {
+    constructor(lifetime: number, location: XY) {
         this.lifetime = lifetime;
         this.location = location;
         this.creationTime = Date.now();
@@ -15,7 +15,7 @@ export class TemporaryElement {
         return Date.now() - this.lifetime > this.creationTime;
     }
 
-    public getLocation(): XYLocation {
+    public getLocation(): XY {
         return this.location;
     }
 }

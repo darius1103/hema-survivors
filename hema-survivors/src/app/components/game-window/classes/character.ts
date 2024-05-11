@@ -1,71 +1,77 @@
-import { Observable } from "rxjs";
-import { BoxV1 } from "../utils/box";
 import { ControlStatus } from "../utils/control-status";
 import { EventsStreams } from "../utils/events-streams";
 import { PIXEL_SIZE } from "../utils/globals";
 import { FRAME_ONE, FRAME_TWO } from "../utils/sprite-data";
-import { Fighter } from "./fighter";
+import { Box } from "./common/box";
+import { XY } from "./common/x-y";
+import { CharacterDisplay } from "./display/characters/character-display";
 import { SpriteV1 } from "./sprite";
 import { SpriteFrame } from "./sprite-frame";
-import { XYLocation } from "./xylocation";
 
 export class Character {
     private id: string;
-    private figther: Fighter;
-    public absolutePosition: XYLocation = new XYLocation(0, 0);
+    private characterDisplayLTR: CharacterDisplay;
+    private characterDisplayRTL: CharacterDisplay;
+
+    public absolutePosition: XY = {x: 0, y: 0};
     public controlStatus: ControlStatus = {UP: false, DOWN: false, LEFT: false, RIGHT: false};
-    private oldAbsolutePosition: XYLocation = new XYLocation(0, 0);
+    private oldAbsolutePosition: XY = {x: 0, y: 0};
     public width: number = 0;
     public height: number = 0;
+
     private speed: number = 1;
     private sprite: SpriteV1 = new SpriteV1([]);
+    
     private maxHealth: number = 10;
     private currentHealth: number = 10;
     private events$: EventsStreams;
     private facingRight: boolean = true;
 
-    constructor(innitialLocation: XYLocation, fighter: Fighter, id: string, events$: EventsStreams) {
+    constructor(innitialLocation: XY, characterDisplay: CharacterDisplay, characterDisplayRTL: CharacterDisplay, id: string, events$: EventsStreams) {
         this.id = id;
         this.events$ = events$;
-        this.figther = fighter;
+        this.characterDisplayLTR = characterDisplay;
+        this.characterDisplayRTL = characterDisplayRTL;
+
         this.absolutePosition.x = innitialLocation.x;
         this.absolutePosition.y = innitialLocation.y;
+
         this.defineSprinte();
     }
 
-    public getFighter(): Fighter {
-        return this.figther;
+    public getCharacterDisplay(rlt: boolean): CharacterDisplay {
+        return rlt ? this.characterDisplayLTR: this.characterDisplayRTL;
     }
 
     public getFacingRight(): boolean {
         return this.facingRight;
     }
 
-    public attemptAttack(attackBoxes: BoxV1[], damage: number): void {
-       const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition, this.facingRight);
-       if (gotHit) {
-            this.events$.hit.next({
-                text: damage.toString(),
-                unit: this.figther,
-                location: this.getAbsolutePositon()});
-            this.currentHealth -= damage;
-            if (this.currentHealth <= 0) {
-                this.events$.death.next({
-                    id: this.id, 
-                    unit: this.figther});
-            }
-       }
-    }
+    // public attemptAttack(attackBoxes: Box[], damage: number): void {
+    //    const gotHit = this.figther.attemptAttack(attackBoxes, damage, this.absolutePosition, this.facingRight);
+    //    if (gotHit) {
+    //         this.events$.hit.next({
+    //             text: damage.toString(),
+    //             unit: this.figther,
+    //             location: this.getAbsolutePositon()});
+    //         this.currentHealth -= damage;
+    //         if (this.currentHealth <= 0) {
+    //             this.events$.death.next({
+    //                 id: this.id, 
+    //                 unit: this.figther});
+    //         }
+    //    }
+    // }
 
     public getId(): string {
         return this.id;
     }
  
-    public getAbsolutePositon(): XYLocation {
+    public getAbsolutePositon(): XY {
         return this.absolutePosition;
     }
 
-    public getOldPositon(): XYLocation {
+    public getOldPositon(): XY {
         return this.oldAbsolutePosition;
     }
     
@@ -82,12 +88,8 @@ export class Character {
     public setSpeed(speed: number): void {
         this.speed = speed;
     }
-
-    public control(stream: Observable<ControlStatus>): void {
-        stream.subscribe((status) => this.controlStatus = status);
-    }
-
-    public move(topLeftCorner: XYLocation, bottomRightCorner: XYLocation): XYLocation {
+    
+    public move(p1eftCorner: XY, p2ightCorner: XY): XY {
         // Primary movement up down
         var deltaY = 0;
         deltaY += this.controlStatus.DOWN ? 1 : 0;
@@ -107,26 +109,26 @@ export class Character {
 
         this.facingRight = deltaX === 0 ? this.facingRight : deltaX >= 0;
 
-        this.adjustIfInBounds(topLeftCorner, bottomRightCorner, deltaX, deltaY);
+        this.adjustIfInBounds(p1eftCorner, p2ightCorner, deltaX, deltaY);
         return this.oldAbsolutePosition;
     }
 
-    private adjustIfInBounds(topLeftCorner: XYLocation, bottomRightCorner: XYLocation, deltaX: number, deltaY: number): void {
+    private adjustIfInBounds(p1eftCorner: XY, p2ightCorner: XY, deltaX: number, deltaY: number): void {
         const sideSpacing = [
             this.width / 2, 
             this.height / 2];
         var adjustedX = this.absolutePosition.x + deltaX;
-        if (adjustedX < topLeftCorner.x + sideSpacing[0]) {
-            adjustedX = topLeftCorner.x + sideSpacing[0];
-        } else if (adjustedX > bottomRightCorner.x - sideSpacing[0]) {
-            adjustedX = bottomRightCorner.x - sideSpacing[0];
+        if (adjustedX < p1eftCorner.x + sideSpacing[0]) {
+            adjustedX = p1eftCorner.x + sideSpacing[0];
+        } else if (adjustedX > p2ightCorner.x - sideSpacing[0]) {
+            adjustedX = p2ightCorner.x - sideSpacing[0];
         }
         
         var adjustedY = this.absolutePosition.y + deltaY;
-        if (adjustedY < topLeftCorner.y + sideSpacing[1]) {
-            adjustedY = topLeftCorner.y + sideSpacing[1];
-        } else if (adjustedY > bottomRightCorner.y - sideSpacing[1]) {
-            adjustedY = bottomRightCorner.y - sideSpacing[1];
+        if (adjustedY < p1eftCorner.y + sideSpacing[1]) {
+            adjustedY = p1eftCorner.y + sideSpacing[1];
+        } else if (adjustedY > p2ightCorner.y - sideSpacing[1]) {
+            adjustedY = p2ightCorner.y - sideSpacing[1];
         }
 
         this.absolutePosition.x = adjustedX;

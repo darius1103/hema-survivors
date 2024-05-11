@@ -1,8 +1,8 @@
+import { XY } from "../classes/common/x-y";
 import { Fighter } from "../classes/fighter";
-import { XYLocation } from "../classes/xylocation";
 
 export interface HitEvent {
     text: string,
     unit: Fighter,
-    location: XYLocation
+    location: XY
 }
