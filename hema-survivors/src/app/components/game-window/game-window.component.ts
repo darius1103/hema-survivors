@@ -201,7 +201,9 @@ export class GameWindowComponent {
 
   private handleEnemyDeath(death: DeathEvent): void {
     if (death.id === this.playerId) {
-      console.log("You can't die like this...");
+      const playerLocation = this.playerLocation$.getValue();
+      const textLocation = {x: playerLocation.x - 185, y: playerLocation.y};
+      this.temporaryTexts.push(new TemporaryText(5000, textLocation, "GAME OVER", "bold 64px Arial ", "white"))
       this.GAME_OVER = true;
       return;
     }
@@ -270,6 +272,7 @@ export class GameWindowComponent {
   private flatHitArea(): EnemyController[] {
     const enemies: EnemyController[] = [];
     this.hitAreas.forEach(map => map.forEach(enemy => enemies.push(enemy)));
+    console.log("there are this many enemies: " + enemies.length)
     return enemies;
   }
 
@@ -285,7 +288,6 @@ export class GameWindowComponent {
     }
     this.lastEnemySpawnTime = Date.now();
     const enemyLocation = this.randomLocation();
-    // const enemyLocation = {x: 50, y: 0};
     const enemyId = this.randomId();
 
     const basicEnemyC = basicEnemyConfig();
@@ -302,7 +304,7 @@ export class GameWindowComponent {
     }
     const basicEnemyMC: CharacterMovementConfig = {
       absolutePosition: enemyLocation,
-      oldAbsolutePosition: enemyLocation,
+      oldAbsolutePosition: {x: -999, y: -999},
       playerLocation$: this.playerLocation$,
       eventStreams: this.events$,
       controlStatus: {UP: false, DOWN: false, LEFT: false, RIGHT: false},
