@@ -32,7 +32,6 @@ export class SpriteHelper {
                 const offsetX = j + Math.floor(widthDif / 2);
                 const offsetY = i + Math.floor(heightDif / 2);
                 centered[offsetY][offsetX] = data[i][j] ? data[i][j] : 0;
-                console.log(offsetX, offsetX);
             }
         }
         return centered;

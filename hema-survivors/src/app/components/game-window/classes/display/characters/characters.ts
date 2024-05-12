@@ -1,4 +1,5 @@
 import { Color } from "../../../utils/color";
+import { PIXEL_SIZE, SPRITE_HELPER, SPRITE_SIZE } from "../../../utils/globals";
 import { CharacterConfig } from "../../common/character-config";
 import { Feber } from "../../components/weapons/feder";
 import { HEAD, HEAD_CROSS, HEAD_HELMET, LEFT_ARM, LEFT_ARM_ALBOW, LEFT_ARM_GLOVE, LEFT_ARM_GUARD, LEFT_ARM_SLEAVE, LEFT_LEG, RIGHT_ARM, RIGHT_ARM_ALBOW, RIGHT_ARM_GLOVE, RIGHT_ARM_GUARD, RIGHT_ARM_SLEAVE, RIGHT_LEG, TORSO, TORSO_CROSS, WAIST } from "../data/sprites";
@@ -122,6 +123,12 @@ export function playerConfig(): CharacterConfig {
         leftLeg: {
             spriteData: LEFT_LEG,
             anchor: {x: 3, y: 0}
+        },
+        healthBar: {
+            width: SPRITE_SIZE / 2,
+            height: PIXEL_SIZE * 2,
+            location: { x: 0, y: 64},
+            style: 'red'
         }
     };
 }

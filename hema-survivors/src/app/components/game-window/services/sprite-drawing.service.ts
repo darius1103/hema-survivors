@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Box } from '../classes/common/box';
 import { CharacterDisplay } from '../classes/display/characters/character-display';
 import { PLAYER } from '../classes/display/characters/characters';
+import { FEDER_BLUR } from '../classes/display/data/sprites';
 import { TemporaryText } from '../classes/display/temporary-text';
 import { codeToColor } from '../utils/colorLookUp';
-import { DEBUG_MODE, PIXEL_SIZE, SPRITE_HELPER, SPRITE_SIZE } from '../utils/globals';
+import { PIXEL_SIZE, SPRITE_HELPER } from '../utils/globals';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,8 @@ export class SpriteDrawingService {
   public draw(ctx: CanvasRenderingContext2D, character: CharacterDisplay, rtl: boolean = true): void {
     const combinedData = character.getSprite().getCombinedData(rtl, character.getConfig());
     this.drawFrame(ctx, SPRITE_HELPER.centerData(combinedData.data));
+    // this.drawFrame(ctx, SPRITE_HELPER.centerData(FEDER_BLUR));
+    console.log("WIDTH: " + FEDER_BLUR[0].length + " HEIGTH: " + FEDER_BLUR.length)
     // this.drawBoxes(ctx, SPRITE_HELPER.centerBoxesH(combinedData.boxes), "black");
   }
 
@@ -107,4 +110,6 @@ export class SpriteDrawingService {
         ctx.fillText(text.getMessage(), text.getLocation().x, text.getLocation().y);
     });
   }
+
+
 }

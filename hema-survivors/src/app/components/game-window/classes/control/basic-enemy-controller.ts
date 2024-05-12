@@ -4,7 +4,7 @@ import { CharacterMovementConfig } from "../common/character-movement-config";
 import { AttackBasicEnemy } from "./attack-basic-enemy";
 import { MovementBasicEnemy } from "./movement-basic-enemy";
 import { EnemyController } from "./enemy-controller";
-import { DrawCommand } from "../common/draw-commabd";
+import { DrawCommand } from "../common/draw-command";
 import { drawStT } from "../display/sprite-draw";
 import { XY } from "../common/x-y";
 import { SPRITE_HELPER } from "../../utils/globals";

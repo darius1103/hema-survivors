@@ -3,15 +3,16 @@ import { ControlStatus } from "../../utils/control-status";
 import { AttackCommand } from "../common/attack-command";
 import { CharacterControlConfig } from "../common/character-control-config";
 import { CharacterMovementConfig } from "../common/character-movement-config";
-import { DrawCommand } from "../common/draw-commabd";
+import { DrawCommand } from "../common/draw-command";
 import { XY } from "../common/x-y";
 import { AttackPlayer } from "./attack-player";
 import { MovementPlayer } from "./movement-player";
 import { CharacterDisplay } from "../display/characters/character-display";
-import { drawStT } from "../display/sprite-draw";
+import { drawHealthBar, drawStT } from "../display/sprite-draw";
 import { Box } from "../common/box";
 import { AttackEvent } from "../../utils/attack-event";
 import { SPRITE_HELPER } from "../../utils/globals";
+import { HealthBarDrawCommand } from "../common/health-bar-draw-command copy";
 
 export class PlayerController {
     private id: string;
@@ -92,6 +93,15 @@ export class PlayerController {
             position,
         }
         drawStT(drawCommand);
+        if (this.controlConfig?.health?.healthBar && this.controlConfig.health.currentHealth) {
+            const command: HealthBarDrawCommand = {
+                ctx: targetCtx,
+                config: this.controlConfig?.health?.healthBar,
+                location: this.movementConfig.absolutePosition,
+                percentage: this.controlConfig.health.currentHealth / this.controlConfig.health.maximumHealth,
+            }
+            drawHealthBar(command);
+        }
     }
 
     public getAdjustedAttackBoxes(): Box[] {

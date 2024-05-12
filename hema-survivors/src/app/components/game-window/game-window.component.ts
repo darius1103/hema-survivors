@@ -79,7 +79,8 @@ export class GameWindowComponent {
       health: {
         maximumHealth: 10,
         currentHealth: 10,
-        hitBoxes$: this.hitBoxes$
+        hitBoxes$: this.hitBoxes$,
+        healthBar: playerC.healthBar
       }
     }
     const playerMC: CharacterMovementConfig = {
@@ -299,7 +300,8 @@ export class GameWindowComponent {
       health: {
         maximumHealth: 10,
         currentHealth: 10,
-        hitBoxes$: this.hitBoxes$
+        hitBoxes$: this.hitBoxes$,
+        healthBar: basicEnemyC.healthBar
       }
     }
     const basicEnemyMC: CharacterMovementConfig = {

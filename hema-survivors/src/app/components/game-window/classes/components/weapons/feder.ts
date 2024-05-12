@@ -11,14 +11,14 @@ export class Feber extends Component {
     
     constructor() {
         super();
-        const attackBoxesLTR: Box[] = [
-            {p1: {x: SPRITE_SIZE / 2, y: 0}, p2: {x: SPRITE_SIZE / 4 * 3, y: SPRITE_SIZE / 4}},
-            {p1: {x: SPRITE_SIZE / 2, y: SPRITE_SIZE / 4}, p2: {x: SPRITE_SIZE, y: SPRITE_SIZE / 2}}
-        ];
-        const attackBoxesRTL: Box[] = [
-            {p1: {x: SPRITE_SIZE / 4, y: 0}, p2: {x: SPRITE_SIZE / 2 , y: SPRITE_SIZE / 4}},
-            {p1: {x: 0, y: SPRITE_SIZE / 4}, p2: {x: SPRITE_SIZE / 2, y: SPRITE_SIZE / 2}}
-        ];
+        const half = SPRITE_SIZE / 2;
+        const eitgh = SPRITE_SIZE / 8;
+        const attackBoxesLTR: Box[] = [];
+        const attackBoxesRTL: Box[] = [];
+        for (let i = 1; i < 5; i++) {
+            attackBoxesLTR.push({p1: {x: half, y: i * eitgh}, p2: {x: half + eitgh * (i + 1), y: (i + 1) * eitgh}});
+            attackBoxesRTL.push({p1: {x: half - eitgh * (i + 1), y: i * eitgh}, p2: {x: half, y: (i + 1) * eitgh}})
+        }
         this.weapon = {
             attackBoxesLTR,
             attackBoxesRTL,
