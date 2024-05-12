@@ -7,13 +7,9 @@ import { XY } from "../common/x-y";
 
 export class Sprite {
     private dataLTR: number[][];
-    private dataRTL: number[][];
-    private hitBoxLTR: Box;
-    private hitBoxRTL: Box;
     private applyTheme: boolean;
     private segments: SegmentConfig[];
     private anchorLTR: XY;
-    private anchorRTL: XY;
     private combinedData: CombinedData | null;
     private width: number;
     private height: number;
@@ -27,29 +23,9 @@ export class Sprite {
         this.dataLTR = dataLTR;
         this.anchorLTR = anchor;
         this.applyTheme = applyTheme;
-        this.hitBoxLTR = SPRITE_HELPER.calculateHitBox(this.dataLTR);
         this.width = SPRITE_HELPER.width(this.dataLTR);
         this.height = this.dataLTR.length;
-        this.dataRTL = SPRITE_HELPER.flipData(this.width, this.dataLTR);
-        this.anchorRTL = SPRITE_HELPER.flipAnchor(this.width, this.anchorLTR);
-        this.hitBoxRTL = SPRITE_HELPER.calculateHitBox(this.dataRTL);
         this.combinedData = null;
-    }
-
-    public getDataLTR(): number[][] {
-        return this.dataLTR;
-    }
-
-    public getDataRTL(): number[][] {
-        return this.dataRTL;
-    }
-
-    public getHitBoxLTR(): Box {
-        return this.hitBoxLTR;
-    }
-
-    public getHitBoxRTL(): Box {
-        return this.hitBoxRTL;
     }
 
     public getHeight(): number {
@@ -61,17 +37,24 @@ export class Sprite {
     }
 
     public getSegments(ltr: boolean): SegmentConfig[] {
-        return ltr ? 
-            this.segments : 
-            this.segments.map(segment => {
-                const width = this.getData(ltr)[0].length;
-                segment.anchorPoint = SPRITE_HELPER.flipAnchor(width, segment.anchorPoint);
-                return segment;
+        if (ltr) {
+            return this.segments;
+        } else {
+            const reversed: SegmentConfig[] = [];
+            this.segments.forEach(segment => {
+                reversed.push({
+                    sprite: segment.sprite,
+                    under: segment.under,
+                    anchorPoint: SPRITE_HELPER.flipAnchor(this.width, segment.anchorPoint),
+                    name: segment.name + ""
+                })
             });
+            return reversed;
+        }
     }
 
     public getAnchor(ltr: boolean): XY {
-        return ltr ? this.anchorLTR: this.anchorRTL;
+        return ltr ? this.anchorLTR: SPRITE_HELPER.flipAnchor(this.width, this.anchorLTR);
     }
 
     public getApplyTheme(): boolean {
@@ -85,12 +68,12 @@ export class Sprite {
 
     public getData(ltr: boolean): number[][] {
         const copy: number[][] = [];
-        const target = ltr ? this.dataLTR : this.dataRTL;
+        const target = ltr ? this.dataLTR : SPRITE_HELPER.flipData(this.width, this.dataLTR);
         target.forEach(row => copy.push([...row]));
         return copy;
     }
 
     public getHitBox(ltr: boolean): Box {
-        return ltr ? this.hitBoxLTR : this.hitBoxRTL;
+        return SPRITE_HELPER.calculateHitBox(this.getData(ltr));
     }
 }

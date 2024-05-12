@@ -5,7 +5,7 @@ import { PLAYER } from '../classes/display/characters/characters';
 import { FEDER_BLUR } from '../classes/display/data/sprites';
 import { TemporaryText } from '../classes/display/temporary-text';
 import { codeToColor } from '../utils/colorLookUp';
-import { PIXEL_SIZE, SPRITE_HELPER } from '../utils/globals';
+import { PIXEL_SIZE, SPRITE_HELPER, SPRITE_SIZE } from '../utils/globals';
 
 @Injectable({
   providedIn: 'root'
@@ -17,22 +17,21 @@ export class SpriteDrawingService {
   public draw(ctx: CanvasRenderingContext2D, character: CharacterDisplay, rtl: boolean = true): void {
     const combinedData = character.getSprite().getCombinedData(rtl, character.getConfig());
     this.drawFrame(ctx, SPRITE_HELPER.centerData(combinedData.data));
-    // this.drawFrame(ctx, SPRITE_HELPER.centerData(FEDER_BLUR));
     console.log("WIDTH: " + FEDER_BLUR[0].length + " HEIGTH: " + FEDER_BLUR.length)
-    // this.drawBoxes(ctx, SPRITE_HELPER.centerBoxesH(combinedData.boxes), "black");
+    this.drawBoxes(ctx, SPRITE_HELPER.centerBoxesH(combinedData.boxes), "black");
   }
 
   private drawFrame(ctx: CanvasRenderingContext2D, data: number[][], offset: number = 0): void {
     const frameWidth = data[0].length * PIXEL_SIZE;
-    // ctx.beginPath();
-    // ctx.moveTo(0, 0);
-    // ctx.lineTo(SPRITE_SIZE * PIXEL_SIZE, SPRITE_SIZE * PIXEL_SIZE);
-    // ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(SPRITE_SIZE * PIXEL_SIZE, SPRITE_SIZE * PIXEL_SIZE);
+    ctx.stroke();
 
-    // ctx.beginPath();
-    // ctx.moveTo(SPRITE_SIZE * PIXEL_SIZE, 0);
-    // ctx.lineTo(0, SPRITE_SIZE * PIXEL_SIZE);
-    // ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(SPRITE_SIZE * PIXEL_SIZE, 0);
+    ctx.lineTo(0, SPRITE_SIZE * PIXEL_SIZE);
+    ctx.stroke();
     for (let i: number = 0; i < data.length; i++) {
       const frameRow = data[i] ? data[i] : [];
       for (let j: number = 0; j < frameRow.length; j++) {
@@ -110,6 +109,4 @@ export class SpriteDrawingService {
         ctx.fillText(text.getMessage(), text.getLocation().x, text.getLocation().y);
     });
   }
-
-
 }

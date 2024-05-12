@@ -124,8 +124,10 @@ export class GameWindowComponent {
     this.enemyCanvasRTL.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
     this.heroCanvasRTL.nativeElement.width =  PIXEL_SIZE * SPRITE_SIZE;
     this.heroCanvasRTL.nativeElement.height = PIXEL_SIZE * SPRITE_SIZE;
-    this.debugCanvas.nativeElement.width =  14 * SPRITE_SIZE;
-    this.debugCanvas.nativeElement.height = 14 * SPRITE_SIZE;
+    if (this.debugCanvas) {
+      this.debugCanvas.nativeElement.width =  14 * SPRITE_SIZE;
+      this.debugCanvas.nativeElement.height = 14 * SPRITE_SIZE
+    };
 
     this.domContext = this.canvas.nativeElement.getContext("2d");
     this.domContext.translate(this.HEIGHT / 2, this.WIDTH / 2);
@@ -139,8 +141,10 @@ export class GameWindowComponent {
 
   private drawSpritePlayer(): void {
     this.spriteDrawing.draw(this.heroCanvasLTR.nativeElement.getContext("2d"), this.player.getCharacterDisplay(true), true);
-    this.spriteDrawing.draw(this.heroCanvasRTL.nativeElement.getContext("2d"), this.player.getCharacterDisplay(false), false);
-    this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), true);
+    this.spriteDrawing.draw(this.heroCanvasRTL.nativeElement.getContext("2d"), this.player.getCharacterDisplay(true), false);
+    if (this.debugCanvas) {
+      this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), true);
+    }
   }
 
   private drawSpriteEnemy(): void {
@@ -181,6 +185,7 @@ export class GameWindowComponent {
 
   private startGame(): void {
     this.drawSpritePlayer();
+    return;
     this.drawSpriteEnemy();
     this.drawBackground();
     this.drawPlayer();
