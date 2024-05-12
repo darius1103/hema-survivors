@@ -90,6 +90,13 @@ export class SpriteHelper {
         };
     };
 
+    public cloneAnchor(anchor: XY): XY {
+        return  {
+            x: Math.floor(anchor.x),
+            y: Math.floor(anchor.y)
+        };
+    };
+
     public flipBox(width: number, box: Box): Box {
         return {
             p1: {

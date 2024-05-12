@@ -21,8 +21,8 @@ export class BasicEnemyController extends EnemyController  {
         this.id = id;
         this.controlConfig = controlConfig;
         this.movementConfig = movementConfig;
-        const width = this.controlConfig.combinedDataLTR?.getSprite().getWidth();
-        const height = this.controlConfig.combinedDataLTR?.getSprite().getHeight();
+        const width = this.controlConfig.combinedData?.getSprite().getWidth();
+        const height = this.controlConfig.combinedData?.getSprite().getHeight();
         this.movementConfig.width = width;
         this.movementConfig.height = height;
         this.attackController = new AttackBasicEnemy();
@@ -52,12 +52,11 @@ export class BasicEnemyController extends EnemyController  {
     }
 
     private getHitBoxes(): Box[] {
-        const config = this.movementConfig.ltr ? 
-        this.controlConfig.combinedDataLTR.getConfig() :
-        this.controlConfig.combinedDataRTL.getConfig();
-    return this.movementConfig.ltr ? 
-        this.controlConfig.combinedDataLTR.getSprite().getCombinedData(this.movementConfig.ltr, config).boxes :
-        this.controlConfig.combinedDataRTL.getSprite().getCombinedData(this.movementConfig.ltr, config).boxes;
+        return this.controlConfig.combinedData
+            .getSprite()
+            .getCombinedData(
+                this.movementConfig.ltr, 
+                this.controlConfig.combinedData.getConfig()).boxes;
     }
 
     public override getId(): string {

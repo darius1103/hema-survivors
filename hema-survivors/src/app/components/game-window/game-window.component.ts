@@ -73,8 +73,7 @@ export class GameWindowComponent {
     const playerC = playerConfig();
     const playerCC: CharacterControlConfig = {
       attack: playerC.attack,
-      combinedDataLTR: new CharacterDisplay(playerC),
-      combinedDataRTL: new CharacterDisplay(playerConfig()),
+      combinedData: new CharacterDisplay(playerC),
       events$: this.events$,
       health: {
         maximumHealth: 10,
@@ -140,8 +139,8 @@ export class GameWindowComponent {
   }
 
   private drawSpritePlayer(): void {
-    this.spriteDrawing.draw(this.heroCanvasLTR.nativeElement.getContext("2d"), this.player.getCharacterDisplay(true), true);
-    this.spriteDrawing.draw(this.heroCanvasRTL.nativeElement.getContext("2d"), this.player.getCharacterDisplay(true), false);
+    this.spriteDrawing.draw(this.heroCanvasLTR.nativeElement.getContext("2d"), this.player.getCharacterDisplay(), true);
+    this.spriteDrawing.draw(this.heroCanvasRTL.nativeElement.getContext("2d"), this.player.getCharacterDisplay(), false);
     if (this.debugCanvas) {
       this.spriteDrawing.writeFrame(this.debugCanvas.nativeElement.getContext("2d"), true);
     }
@@ -185,7 +184,6 @@ export class GameWindowComponent {
 
   private startGame(): void {
     this.drawSpritePlayer();
-    return;
     this.drawSpriteEnemy();
     this.drawBackground();
     this.drawPlayer();
@@ -299,8 +297,7 @@ export class GameWindowComponent {
     const basicEnemyC = basicEnemyConfig();
     const basicEnemyCC: CharacterControlConfig = {
       attack: basicEnemyC.attack,
-      combinedDataLTR: new CharacterDisplay(basicEnemyC),
-      combinedDataRTL: new CharacterDisplay(basicEnemyConfig()),
+      combinedData: new CharacterDisplay(basicEnemyC),
       events$: this.events$,
       health: {
         maximumHealth: 10,

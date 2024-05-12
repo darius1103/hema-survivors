@@ -1,6 +1,6 @@
 import { SpriteHelper } from "../classes/display/sprite-helper";
 
-export const PIXEL_SIZE = 4;
+export const PIXEL_SIZE = 2;
 export const SPRITE_SIZE = 64;
 export const MAX_ENEMIES = 2;
 export const MAGIC_BOX_ALIGNMENT = 20;

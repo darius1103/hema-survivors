@@ -5,8 +5,7 @@ import { HealthConfig } from "./health-config";
 
 export interface CharacterControlConfig {
     attack: AttackConfig,
-    combinedDataLTR: CharacterDisplay,
-    combinedDataRTL: CharacterDisplay,
+    combinedData: CharacterDisplay,
     events$: EventsStreams,
     health: HealthConfig
 }

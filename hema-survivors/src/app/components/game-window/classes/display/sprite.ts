@@ -9,7 +9,7 @@ export class Sprite {
     private dataLTR: number[][];
     private applyTheme: boolean;
     private segments: SegmentConfig[];
-    private anchorLTR: XY;
+    private anchor: XY;
     private combinedData: CombinedData | null;
     private width: number;
     private height: number;
@@ -21,7 +21,7 @@ export class Sprite {
         applyTheme: boolean = false) {
         this.segments = segments;
         this.dataLTR = dataLTR;
-        this.anchorLTR = anchor;
+        this.anchor = anchor;
         this.applyTheme = applyTheme;
         this.width = SPRITE_HELPER.width(this.dataLTR);
         this.height = this.dataLTR.length;
@@ -37,24 +37,36 @@ export class Sprite {
     }
 
     public getSegments(ltr: boolean): SegmentConfig[] {
-        if (ltr) {
-            return this.segments;
-        } else {
-            const reversed: SegmentConfig[] = [];
+        const cloned: SegmentConfig[] = [];
             this.segments.forEach(segment => {
-                reversed.push({
+                cloned.push({
                     sprite: segment.sprite,
                     under: segment.under,
-                    anchorPoint: SPRITE_HELPER.flipAnchor(this.width, segment.anchorPoint),
+                    anchorPoint: ltr ? 
+                        SPRITE_HELPER.cloneAnchor(segment.anchorPoint) : 
+                        SPRITE_HELPER.flipAnchor(this.width, segment.anchorPoint),
                     name: segment.name + ""
                 })
             });
-            return reversed;
-        }
+        return cloned;
+        // if (ltr) {
+        //     return this.segments;
+        // } else {
+        //     const cloned: SegmentConfig[] = [];
+        //     this.segments.forEach(segment => {
+        //         cloned.push({
+        //             sprite: segment.sprite,
+        //             under: segment.under,
+        //             anchorPoint: SPRITE_HELPER.flipAnchor(this.width, segment.anchorPoint),
+        //             name: segment.name + ""
+        //         })
+        //     });
+        //     return cloned;
+        // }
     }
 
     public getAnchor(ltr: boolean): XY {
-        return ltr ? this.anchorLTR: SPRITE_HELPER.flipAnchor(this.width, this.anchorLTR);
+        return ltr ? SPRITE_HELPER.cloneAnchor(this.anchor): SPRITE_HELPER.flipAnchor(this.width, this.anchor);
     }
 
     public getApplyTheme(): boolean {
@@ -62,8 +74,7 @@ export class Sprite {
     }
 
     public getCombinedData(ltr: boolean, config: CharacterConfig): CombinedData {
-        this.combinedData = this.combinedData ? this.combinedData : SPRITE_HELPER.combineWithSegments(this, ltr, config);
-        return this.combinedData;
+        return SPRITE_HELPER.combineWithSegments(this, ltr, config);
     }
 
     public getData(ltr: boolean): number[][] {
